@@ -34,7 +34,7 @@ if __name__ == "__main__":
     print(data)
 
     print("Graphe simple de Ta en fonction du temps")
-    get_easy_time_graph(data, ["Ta","Tb","Tc","Td"])
-    get_easy_time_graph(data, ["Hin","Hout","Hamb","CryoL"])
-    get_easy_time_graph(data, ["Tamb","Tout","flowIn"])
+    get_easy_time_graph(data, ["Ta", "Tb", "Tc", "Td"])
+    get_easy_time_graph(data, ["Hin", "Hout", "Hamb", "CryoL"])
+    get_easy_time_graph(data, ["Tamb", "Tout", "flowIn"])
     get_easy_time_graph(data, ["I1", "I3"])
