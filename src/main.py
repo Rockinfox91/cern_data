@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from src.process.graph import get_easy_time_graph
+from process.graph import get_easy_time_graph
 
 
 def lire_data(data_file_name):
