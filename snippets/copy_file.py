@@ -1,11 +1,20 @@
 def copier_fichier(source, destination):
-    with open(source, 'r') as fichier_source:
-        contenu = fichier_source.read()
+    try:
+        with open(source, 'r') as fichier_source:
+            contenu = fichier_source.read()
+    except FileNotFoundError:
+        print("This file does not exist...")
+        return
+    except Exception as e:
+        print(e)
 
     with open(destination, 'w') as fichier_destination:
         fichier_destination.write(contenu)
+        print("File copied")
 
 
-source = input("Numéro run voulu >")
-source = f"cern_data_run{source}.txt"
-copier_fichier(source, destination=f"copy_{source}")
+while True:
+    source = input("Run number wanted to copy >")
+    source = "cern_data_run{0}.txt".format(source)
+    copier_fichier(source, "copy_{0}".format(source))
+    print("----------")
