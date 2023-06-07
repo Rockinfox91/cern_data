@@ -11,11 +11,13 @@ def lire_data(data_file_name):
     print(f"Lecture du fichier \"{chemin_fichier}\"")
 
     # Lire le fichier de données
-    donnees = np.genfromtxt(chemin_fichier, delimiter='\t', dtype=[('time', 'float'), ('flowIn', 'float'), ('Tout', 'float'),
-                                                                   ('Hout', 'float'), ('Tamb', 'float'), ('Hamb', 'float'),
-                                                                   ('Hin', 'float'), ('CryoL', 'float'), ('Ta', 'float'),
-                                                                   ('Tb', 'float'), ('Tc', 'float'), ('Td', 'float'),
-                                                                   ('I1', 'float'), ('I3', 'float')],skip_header=1)
+    donnees = np.genfromtxt(chemin_fichier,
+            delimiter='\t', dtype=[('time', 'float'),
+            ('flowIn', 'float'), ('Tout', 'float'),
+            ('Hout', 'float'), ('Tamb', 'float'), ('Hamb', 'float'),
+            ('Hin', 'float'), ('CryoL', 'float'), ('Ta', 'float'),
+        ('Tb', 'float'), ('Tc', 'float'), ('Td', 'float'),
+        ('I1', 'float'), ('I3', 'float')],skip_header=1)
 
     # Étiquettes des colonnes
     etiquettes = ['time', 'flowIn', 'Tout', 'Hout', 'Tamb', 'Hamb', 'Hin', 'CryoL', 'Ta', 'Tb', 'Tc', 'Td', 'I1', 'I3']
@@ -31,7 +33,7 @@ def lire_data(data_file_name):
 
 
 def get_easy_graph(file, coly, colx="time", name=None,
-                   start_time=None, end_time=None, separate_plots=False, ax_y_name="Values"):
+                   start_time=None, end_time=None, separate_plots=False, ax_y_name="Values", ax_x_name="Time since beginning (min)"):
     df = lire_data(file)
     print("Fichier lu pour le graphique : ")
     print(df)
@@ -49,9 +51,9 @@ def get_easy_graph(file, coly, colx="time", name=None,
     fig, ax = plt.subplots(figsize=(8, 6))
 
     for i, col in enumerate(coly):
-        ax.plot(df_filtered[colx], df_filtered[col], label=col)
+        ax.plot(df_filtered[colx]/60, df_filtered[col], label=col)
 
-    ax.set_xlabel(colx)
+    ax.set_xlabel(ax_x_name)
     ax.set_ylabel(ax_y_name)
     ax.set_title(f"{name}_{file}")
     ax.legend()
@@ -59,18 +61,19 @@ def get_easy_graph(file, coly, colx="time", name=None,
     # Récupérer les métadonnées du fichier
     file_creation_time = os.path.getctime(f"data/{file}.txt")
     file_creation_datetime = pd.to_datetime(file_creation_time, unit='s')
+    print(file_creation_datetime)
     file_creation_datetime += timedelta(hours=2)
     file_creation_datetime = file_creation_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
     # Afficher la date et l'heure de création sur le graphe
-    ax.text(-0.1, 1.1, f"Date : {file_creation_datetime}",
+    ax.text(-0.1, 1.1, f"File begin at : {file_creation_datetime}",
             transform=ax.transAxes, ha='left', va='top')
 
     if separate_plots:
         for i, col in enumerate(coly):
             fig, ax = plt.subplots(figsize=(8, 6))
-            ax.plot(df_filtered[colx], df_filtered[col])
-            ax.set_xlabel(colx)
+            ax.plot(df_filtered[colx] / 60, df_filtered[col])
+            ax.set_xlabel(ax_x_name)
             ax.set_ylabel(ax_y_name)
             ax.set_title(f"{name}_{file}")
     plt.tight_layout()
@@ -80,5 +83,5 @@ def get_easy_graph(file, coly, colx="time", name=None,
     if start_time:
         filename += f"_to_{int(end_time)}"
     print(filename)
-    plt.savefig(f"img/hot_test/{filename}", dpi=500)
+    plt.savefig(f"img/hot_test/{filename}", dpi=100)
     plt.show()
