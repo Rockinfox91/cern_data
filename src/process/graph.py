@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from .data_analyse import get_creation_date_of_file
+from .data_analyse import get_date_first_data,get_date_last_data
 
 
 def lire_data(data_file_name: str) -> pd.DataFrame:
@@ -46,7 +46,7 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
 
 def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
                    start_time: int = None, end_time: int = None, separate_plots: bool = False, ax_y_name: str = "Values",
-                   ax_x_name: str = "Time since beginning (min)"):
+                   ax_x_name: str = "Time since beginning (min)", is_saving: bool = False):
     """
         Génère un graphique simple à partir des données d'un fichier.
 
@@ -98,11 +98,15 @@ def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
     ax.legend()
 
     # Récupérer les métadonnées du fichier
-    file_creation_datetime = get_creation_date_of_file(file)
-    file_creation_datetime = file_creation_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    file_first_data_date = get_date_first_data(file)
+    file_first_data_datetime = file_first_data_date.strftime("%Y-%m-%d %H:%M:%S")
+    file_last_data_date = get_date_last_data(file)
+    file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
 
     # Afficher la date et l'heure de création sur le graphe
-    ax.text(-0.1, 1.1, f"File begin at : {file_creation_datetime}",
+    ax.text(-0.1, 1.13, f"File begin at : {file_first_data_datetime}",
+            transform=ax.transAxes, ha='left', va='top')
+    ax.text(-0.1, 1.1, f"File finish at : {file_last_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
 
     # Tracer les courbes séparément sur des graphiques distincts si l'option separate_plots est activée
@@ -126,5 +130,6 @@ def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
     print(filename)
 
     # Sauvegarder le graphique en tant qu'image
-    plt.savefig(f"img/hot_test/{filename}", dpi=100)
+    if is_saving:
+        plt.savefig(f"img/hot_test/{filename}", dpi=100)
     plt.show()
