@@ -27,12 +27,12 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
                             delimiter='\t', dtype=[('time', 'float'),
                                                    ('flowIn', 'float'), ('Tout', 'float'),
                                                    ('Hout', 'float'), ('Tamb', 'float'), ('Hamb', 'float'),
-                                                   ('Hin', 'float'), ('CryoL', 'float'), ('Ta', 'float'),
-                                                   ('Tb', 'float'), ('Tc', 'float'), ('Td', 'float'),
+                                                   ('Hin', 'float'), ('CryoL', 'float'), ('T_bottom', 'float'),
+                                                   ('T_elbow', 'float'), ('T_intermediate', 'float'), ('T_top', 'float'),
                                                    ('I1', 'float'), ('I3', 'float')], skip_header=1)
 
     # Étiquettes des colonnes
-    etiquettes = ['time', 'flowIn', 'Tout', 'Hout', 'Tamb', 'Hamb', 'Hin', 'CryoL', 'Ta', 'Tb', 'Tc', 'Td', 'I1', 'I3']
+    etiquettes = ['time', 'flowIn', 'Tout', 'Hout', 'Tamb', 'Hamb', 'Hin', 'CryoL', 'T_bottom', 'T_elbow', 'T_intermediate', 'T_top', 'I1', 'I3']
 
     # Créer un DataFrame pandas avec les données et les étiquettes
     df = pd.DataFrame(donnees, columns=etiquettes)
@@ -46,7 +46,8 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
 
 def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
                    start_time: int = None, end_time: int = None, separate_plots: bool = False, ax_y_name: str = "Values",
-                   ax_x_name: str = "Time since beginning (min)", is_saving: bool = False):
+                   ax_x_name: str = "Time since beginning (min)", is_saving: bool = False, x_limit: [bool] = None, y_limit: [bool] = None, timing = "min"
+                   , put_y_line = -186):
     """
         Génère un graphique simple à partir des données d'un fichier.
 
@@ -87,15 +88,41 @@ def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
     # Créer la figure et les axes
     fig, ax = plt.subplots(figsize=(8, 6))
 
+    y = np.empty(len(df_filtered))
+    y.fill(put_y_line)
+
+    if timing == "seconds":
+        ax.plot(df_filtered[colx], y, '--', label="LAr temperature")
+    if timing == "min":
+        ax.plot(df_filtered[colx]/60, y, '--', label="LAr temperature")
+    if timing == "hours":
+        ax.plot(df_filtered[colx]/3600 - 13, y, '--', label="LAr temperature")
+    ax.text(0.93, 0.21, f"LAr temperature",
+            transform=ax.transAxes, ha='right', fontweight='bold')
+
+    ax.text(0.99, 0.93, f"CERN Run\n09 June 2023",
+            transform=ax.transAxes, ha='right', fontweight='bold')
+
     # Tracer les courbes pour chaque colonne spécifiée dans coly
     for i, col in enumerate(coly):
-        ax.plot(df_filtered[colx] / 60, df_filtered[col], label=col)
+        if timing == "seconds":
+            ax.plot(df_filtered[colx], df_filtered[col], label=col)
+        if timing == "min":
+            ax.plot(df_filtered[colx] / 60, df_filtered[col], label=col)
+        if timing == "hours":
+            ax.plot(df_filtered[colx] / 3600 - 13, df_filtered[col], label=col)
 
     # Définir les étiquettes des axes et le titre du graphique
     ax.set_xlabel(ax_x_name)
     ax.set_ylabel(ax_y_name)
     ax.set_title(f"{name}_{file}")
-    ax.legend()
+    ax.legend(loc='center right')
+
+    if x_limit:
+        plt.xlim(x_limit[0],x_limit[1])
+
+    if y_limit:
+        plt.ylim(y_limit[0],y_limit[1])
 
     # Récupérer les métadonnées du fichier
     file_first_data_date = get_date_first_data(file)
@@ -131,5 +158,5 @@ def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
 
     # Sauvegarder le graphique en tant qu'image
     if is_saving:
-        plt.savefig(f"img/hot_test/{filename}", dpi=100)
+        plt.savefig(f"img/cold_test/{filename}", dpi=100)
     plt.show()

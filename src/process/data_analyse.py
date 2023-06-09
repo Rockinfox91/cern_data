@@ -25,7 +25,7 @@ def get_date_first_data(file: str) -> datetime:
     donnees = np.genfromtxt(filename,
                             delimiter='\t', skip_header=1)
     # Étiquettes des colonnes
-    date = donnees[0][0]
+    date = donnees[0][0] - 263
     realdate = datetime.fromtimestamp(date)
     return realdate
 def get_date_last_data(file: str) -> datetime:
@@ -33,7 +33,7 @@ def get_date_last_data(file: str) -> datetime:
     donnees = np.genfromtxt(filename,
                             delimiter='\t', skip_header=1)
     # Étiquettes des colonnes
-    date = donnees[-1][0]
+    date = donnees[-1][0] - 263
     realdate = datetime.fromtimestamp(date)
     return realdate
 

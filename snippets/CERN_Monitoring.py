@@ -208,8 +208,8 @@ if __name__ == '__main__':
             data_to_save += "{0:1.3f}\t".format(h_in)           
 
             if out_arduino[6]>5: # 
-                height = (out_arduino[6]-200) * 57.7/823 + 62.3 # Calculating height of LN2 in cryostat
-                g_cryostat = height*100/120 # filled % of the cryostat
+                height = (out_arduino[6]-200) + 57 # Calculating height of LN2 in cryostat
+                g_cryostat = height*100/2*57 # filled % of the cryostat
             else: # case when the gauge sensor is not providing signal (turned off)
                 g_cryostat = 0
             yf1.append(g_cryostat)
