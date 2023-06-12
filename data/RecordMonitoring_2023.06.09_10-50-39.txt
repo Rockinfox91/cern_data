@@ -1,0 +1,2 @@
+LinuxTime	Length2	Length4	Tension2	Tension4	TargetLength2	TargetLength4	ErrLength2	ErrLength4	LengthTot	DayTime
+1686300641.8863506	609.97	683.35	-1.17	-20.32	0.0	0.0	16.63	21.51	1293.3200000000002	10:50:41.88

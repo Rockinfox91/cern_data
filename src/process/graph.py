@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from .data_analyse import get_date_first_data,get_date_last_data
+import datetime
+
+from src.process.data_analyse import get_date_first_data,get_date_last_data,get_unix_time_from_date
 
 
 def lire_data(data_file_name: str) -> pd.DataFrame:
@@ -16,113 +18,102 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
 
     Raises:
         IOError: Si le fichier spécifié n'existe pas.
-
     """
     # Chemin vers le fichier de données
-    chemin_fichier = f'data/{data_file_name}.txt'
+    chemin_fichier = f'data/{data_file_name}'
     print(f"Lecture du fichier \"{chemin_fichier}\"")
 
-    # Lire le fichier de données
-    donnees = np.genfromtxt(chemin_fichier,
-                            delimiter='\t', dtype=[('time', 'float'),
-                                                   ('flowIn', 'float'), ('Tout', 'float'),
-                                                   ('Hout', 'float'), ('Tamb', 'float'), ('Hamb', 'float'),
-                                                   ('Hin', 'float'), ('CryoL', 'float'), ('T_bottom', 'float'),
-                                                   ('T_elbow', 'float'), ('T_intermediate', 'float'), ('T_top', 'float'),
-                                                   ('I1', 'float'), ('I3', 'float')], skip_header=1)
+    try:
+        # Lecture du fichier en tant que DataFrame pandas
+        df = pd.read_csv(chemin_fichier, sep='\t')
+        print(df)
+        return df
 
-    # Étiquettes des colonnes
-    etiquettes = ['time', 'flowIn', 'Tout', 'Hout', 'Tamb', 'Hamb', 'Hin', 'CryoL', 'T_bottom', 'T_elbow', 'T_intermediate', 'T_top', 'I1', 'I3']
-
-    # Créer un DataFrame pandas avec les données et les étiquettes
-    df = pd.DataFrame(donnees, columns=etiquettes)
-    print("Data frame créé.")
-
-    # Soustraire la première valeur de la colonne "time" pour que le temps commence à 0
-    df['time'] = df['time'] - df['time'].iloc[0]
-
-    return df
+    except IOError:
+        raise IOError(f"Le fichier {data_file_name} n'existe pas.")
 
 
-def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
-                   start_time: int = None, end_time: int = None, separate_plots: bool = False, ax_y_name: str = "Values",
-                   ax_x_name: str = "Time since beginning (min)", is_saving: bool = False, x_limit: [bool] = None, y_limit: [bool] = None, timing = "min"
-                   , put_y_line = -186):
+def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = None,
+                        x_limit: [float] = [None, None], y_limit: [float] = [None, None],
+                        ax_y_name: [str] = "Values", is_saving: bool = False, timing: str = "min",
+                        put_y_line: int = None, y_line_name = None,
+                        start_date: str = None, end_date: str = None,
+                        other_coly: str = None, other_coly_name: str = "Values"
+                        ):
     """
-        Génère un graphique simple à partir des données d'un fichier.
+        Generate a graph from data in a file.
 
         Parameters:
-            file (str): Le nom du fichier de données à utiliser.
-            coly (str or list(str)): Le nom de la colonne ou une liste de noms de colonnes à afficher sur le graphique.
-            colx (str, optional): Le nom de la colonne représentant l'axe des abscisses. Par défaut, "time".
-            name (str, optional): Le nom à utiliser pour le graphique. Par défaut, None.
-            start_time (float, optional): Le temps de début des données à afficher. Par défaut, 0.
-            end_time (float, optional): Le temps de fin des données à afficher. Par défaut, le temps final.
-            separate_plots (bool, optional): Indique si les courbes doivent être affichées séparément sur des graphiques distincts.
-                Par défaut, False.
-            ax_y_name (str, optional): Le nom de l'axe des ordonnées. Par défaut, "Values".
-            ax_x_name (str, optional): Le nom de l'axe des abscisses. Par défaut, "Time since beginning (min)".
+        - file (str): The path to the file containing the data.
+        - coly (str or list[str]): The column(s) to plot on the y-axis.
+        - colx (str, optional): The column to plot on the x-axis. Defaults to "Time".
+        - name (str, optional): The name of the graph. Defaults to None.
+        - x_limit (list[float], optional): The lower and upper limits of the x-axis. Defaults to [None, None].
+        - y_limit (list[float], optional): The lower and upper limits of the y-axis. Defaults to [None, None].
+        - separate_plots (bool, optional): Whether to plot each column on a separate subplot. Defaults to False.
+        - ax_y_name (str, optional): The label for the y-axis. Defaults to "Values".
+        - is_saving (bool, optional): Whether to save the plot as an image. Defaults to False.
+        - timing (str, optional): The timing unit for the x-axis. Can be "sec", "min", "hour". Defaults to "min".
+        - put_y_line (int, optional): The y-coordinate of a horizontal line to add to the plot. Defaults to None.
+        - y_line_name (str, optional): The label for the y-line. Defaults to None.
+        - x_limit_date (list[str], optional): The lower and upper dates for the x-axis. Defaults to [None, None].
 
-        Raises:
-            IOError: Si le fichier spécifié n'existe pas.
-
+        Returns:
+        None
         """
-    # Lire les données du fichier
+
     df = lire_data(file)
-    print("Fichier lu pour le graphique : ")
-    print(df)
+
+    x_limit_date = [start_date,end_date]
 
     # Vérifier le type de coly
     if isinstance(coly, str):
         coly = [coly]
 
-    # Définir les valeurs par défaut pour start_time et end_time si elles ne sont pas spécifiées
-    if start_time is None:
-        start_time = 0
-    if end_time is None:
-        end_time = df['time'].max()
+    #TODO Start x time after start or End y time before end
 
-    # Filtrer les données en fonction des temps de début et de fin
-    df_filtered = df.loc[(df['time'] >= start_time) & (df['time'] <= end_time)]
+    if x_limit_date[0]:
+        x_limit[0] = get_unix_time_from_date(x_limit_date[0]) - df[colx].iloc[0]
+    if x_limit_date[1]:
+        x_limit[1] = get_unix_time_from_date(x_limit_date[1]) - df[colx].iloc[0]
 
-    # Créer la figure et les axes
-    fig, ax = plt.subplots(figsize=(8, 6))
+    if x_limit[0] is None:
+        x_limit[0] = 0
+    if x_limit[1] is None:
+        x_limit[1] = df[colx].max() - df[colx].iloc[0]
 
-    y = np.empty(len(df_filtered))
-    y.fill(put_y_line)
+    print(x_limit)
 
-    if timing == "seconds":
-        ax.plot(df_filtered[colx], y, '--', label="LAr temperature")
-    if timing == "min":
-        ax.plot(df_filtered[colx]/60, y, '--', label="LAr temperature")
-    if timing == "hours":
-        ax.plot(df_filtered[colx]/3600 - 13, y, '--', label="LAr temperature")
-    ax.text(0.93, 0.21, f"LAr temperature",
+    try :
+        # Format x-axis based on timing parameter
+        if timing == "sec":
+            df[colx] = (df[colx] - df[colx].iloc[0])
+        elif timing == "min":
+            df[colx] = (df[colx] - df[colx].iloc[0]) / 60
+            x_limit[0] = x_limit[0] / 60
+            x_limit[1] = x_limit[1] / 60
+        elif timing == "hour":
+            df[colx] = (df[colx] - df[colx].iloc[0]) / 3600
+            x_limit[0] = x_limit[0]/3600
+            x_limit[1] = x_limit[1] / 3600
+        else:
+            raise Exception
+    except Exception as e:
+        print(e)
+        print("Timing need to be sec, min or hour !")
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Get the current date
+    current_date = datetime.datetime.now()
+
+    # Extract year, month, and day as strings
+    year = str(current_date.year)
+    month = str(current_date.month).zfill(2)  # Zero-padding for single-digit months
+    day = str(current_date.day).zfill(2)  # Zero-padding for single-digit days
+
+    ax.text(0.99, 1.01, f"CERN Run\n{day}-{month}-{year}",
             transform=ax.transAxes, ha='right', fontweight='bold')
-
-    ax.text(0.99, 0.93, f"CERN Run\n09 June 2023",
-            transform=ax.transAxes, ha='right', fontweight='bold')
-
-    # Tracer les courbes pour chaque colonne spécifiée dans coly
-    for i, col in enumerate(coly):
-        if timing == "seconds":
-            ax.plot(df_filtered[colx], df_filtered[col], label=col)
-        if timing == "min":
-            ax.plot(df_filtered[colx] / 60, df_filtered[col], label=col)
-        if timing == "hours":
-            ax.plot(df_filtered[colx] / 3600 - 13, df_filtered[col], label=col)
-
-    # Définir les étiquettes des axes et le titre du graphique
-    ax.set_xlabel(ax_x_name)
-    ax.set_ylabel(ax_y_name)
-    ax.set_title(f"{name}_{file}")
-    ax.legend(loc='center right')
-
-    if x_limit:
-        plt.xlim(x_limit[0],x_limit[1])
-
-    if y_limit:
-        plt.ylim(y_limit[0],y_limit[1])
 
     # Récupérer les métadonnées du fichier
     file_first_data_date = get_date_first_data(file)
@@ -136,27 +127,56 @@ def get_easy_graph(file: str, coly: [str], colx: str = "time", name: str = None,
     ax.text(-0.1, 1.1, f"File finish at : {file_last_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
 
-    # Tracer les courbes séparément sur des graphiques distincts si l'option separate_plots est activée
-    if separate_plots:
-        for i, col in enumerate(coly):
-            fig, ax = plt.subplots(figsize=(8, 6))
-            ax.plot(df_filtered[colx] / 60, df_filtered[col])
-            ax.set_xlabel(ax_x_name)
-            ax.set_ylabel(ax_y_name)
-            ax.set_title(f"{name}_{file}")
+    # Plot each column from coly on the first y-axis
+    color_palette = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    for i, col in enumerate(coly):
+        ax.plot(df[colx], df[col], label=col, color=color_palette[i % len(color_palette)])
 
-    # Ajuster le placement des éléments dans le graphique
-    plt.tight_layout()
+    # Plot the other_coly on the second y-axis
+    if other_coly:
+        color_palette2 = plt.cm.Set2(np.linspace(0, 1, len(other_coly)))  # Generate a color palette for other_coly
+        ax2 = ax.twinx()  # Create a twin y-axis
+        for i, coly2 in enumerate(other_coly):
+            ax2.plot(df[colx], df[coly2], label=coly2, color=color_palette2[i])
+        ax2.set_ylabel(other_coly_name)  # Set the label for the second y-axis
 
-    # Définir le nom du fichier de sauvegarde en fonction des paramètres spécifiés
-    filename = f"plot_{file}_{name}"
-    if start_time:
-        filename += f"_from_{int(start_time)}"
-    if start_time:
-        filename += f"_to_{int(end_time)}"
-    print(filename)
+    if put_y_line:
+        # Add a horizontal line at y=put_y_line
+        ax.axhline(y=put_y_line, linestyle='--', color='red')
+        ax.text(0.93, 0.21, y_line_name,
+                transform=ax.transAxes, ha='right', fontweight='bold')
 
-    # Sauvegarder le graphique en tant qu'image
-    if is_saving:
-        plt.savefig(f"img/cold_test/{filename}", dpi=100)
+    # Set axis labels and title
+    if colx=="Time" or colx=="LinuxTime":
+        ax.set_xlabel(f"Time since beginning ({timing})")
+    else:
+        ax.set_xlabel(colx)
+    ax.set_ylabel(ax_y_name)
+
+    # Définir les valeurs par défaut pour start_time et end_time si elles ne sont pas spécifiées
+    ax.set_xlim(x_limit[0], x_limit[1])
+
+    # Set y-axis limit if provided
+    if y_limit is not None:
+        ax.set_ylim(y_limit)
+
+    # Format x-axis ticks if timing is set to "date"
+    if timing == "date":
+        ax.set_xticklabels(df[colx], rotation=45)
+
+    # Add title
+    ax.set_title(f"{name}_{file}")
+
+    # Add legend
+    if other_coly:
+        ax2.legend(loc='center left', bbox_to_anchor=(1.13, 0.5))
+    ax.legend(loc='center right', bbox_to_anchor=(-0.13, 0.5))
+
+    fig.tight_layout()
+
+    # Save the plot if is_saving is True
+    if is_saving and name:
+        plt.savefig(f"img/cold_test/plot_{name}.png", dpi=300)
+
+    # Show the plot
     plt.show()

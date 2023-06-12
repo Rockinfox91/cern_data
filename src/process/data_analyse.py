@@ -21,7 +21,7 @@ def get_time_from_secondstep(secondstep: int, startdate: datetime):
 
 
 def get_date_first_data(file: str) -> datetime:
-    filename = f"data/{file}.txt"
+    filename = f"data/{file}"
     donnees = np.genfromtxt(filename,
                             delimiter='\t', skip_header=1)
     # Étiquettes des colonnes
@@ -29,7 +29,7 @@ def get_date_first_data(file: str) -> datetime:
     realdate = datetime.fromtimestamp(date)
     return realdate
 def get_date_last_data(file: str) -> datetime:
-    filename = f"data/{file}.txt"
+    filename = f"data/{file}"
     donnees = np.genfromtxt(filename,
                             delimiter='\t', skip_header=1)
     # Étiquettes des colonnes
@@ -37,4 +37,15 @@ def get_date_last_data(file: str) -> datetime:
     realdate = datetime.fromtimestamp(date)
     return realdate
 
+def get_unix_time_from_date(date: str) -> float:
+    # Define the format of the input date string
+    date_format = "%Y.%m.%d_%H:%M:%S"
 
+    # Parse the input date string into a datetime object
+    datetime_obj = datetime.strptime(date, date_format)
+
+    # Convert the datetime object to a Unix timestamp
+    unix_timestamp = datetime_obj.timestamp()
+
+    # Return the Unix timestamp as an integer
+    return int(unix_timestamp)
