@@ -5,74 +5,49 @@ import datetime
 import seaborn as sns
 import scipy
 
-from src.process.time_thing import get_date_first_data,get_date_last_data,get_unix_time_from_date
-
-
-def lire_data(data_file_name: str) -> pd.DataFrame:
-    """
-    Lire les données à partir d'un fichier texte.
-
-    Parameters:
-        data_file_name (str): Le nom du fichier de données à lire.
-
-    Returns:
-        pandas.DataFrame: Un DataFrame contenant les données lues à partir du fichier.
-
-    Raises:
-        IOError: Si le fichier spécifié n'existe pas.
-    """
-    # Chemin vers le fichier de données
-    chemin_fichier = f'data/{data_file_name}'
-    print(f"Lecture du fichier \"{chemin_fichier}\"")
-
-    try:
-        # Lecture du fichier en tant que DataFrame pandas
-        df = pd.read_csv(chemin_fichier, sep='\t')
-        print(df)
-        return df
-
-    except IOError:
-        raise IOError(f"Le fichier {data_file_name} n'existe pas.")
+from src.process.time_thing import get_date_first_data, get_date_last_data, get_unix_time_from_date
+from src.process.data_analyse import lire_data
 
 
 def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = None,
                         x_limit: [float] = [None, None], y_limit: [float] = [None, None],
                         ax_y_name: [str] = "Values", is_saving: bool = False, timing: str = "min",
-                        put_y_line: int = None, y_line_name = None,
+                        put_y_line: int = None, y_line_name=None,
                         start_date: str = None, end_date: str = None,
-                        other_coly: str = None, other_coly_name: str = "Values"
-                        ):
+                        other_coly: str = None, other_coly_name: str = "Values"):
     """
-        Generate a graph from data in a file.
+    Generate a graph from data in a file.
 
-        Parameters:
+    Parameters:
         - file (str): The path to the file containing the data.
         - coly (str or list[str]): The column(s) to plot on the y-axis.
         - colx (str, optional): The column to plot on the x-axis. Defaults to "Time".
         - name (str, optional): The name of the graph. Defaults to None.
         - x_limit (list[float], optional): The lower and upper limits of the x-axis. Defaults to [None, None].
         - y_limit (list[float], optional): The lower and upper limits of the y-axis. Defaults to [None, None].
-        - separate_plots (bool, optional): Whether to plot each column on a separate subplot. Defaults to False.
         - ax_y_name (str, optional): The label for the y-axis. Defaults to "Values".
         - is_saving (bool, optional): Whether to save the plot as an image. Defaults to False.
-        - timing (str, optional): The timing unit for the x-axis. Can be "sec", "min", "hour". Defaults to "min".
+        - timing (str, optional): The timing unit for the x-axis. Can be "sec", "min", or "hour". Defaults to "min".
         - put_y_line (int, optional): The y-coordinate of a horizontal line to add to the plot. Defaults to None.
         - y_line_name (str, optional): The label for the y-line. Defaults to None.
-        - x_limit_date (list[str], optional): The lower and upper dates for the x-axis. Defaults to [None, None].
+        - start_date (str, optional): The start date for the x-axis. Defaults to None.
+        - end_date (str, optional): The end date for the x-axis. Defaults to None.
+        - other_coly (str, optional): The column to plot on the second y-axis. Defaults to None.
+        - other_coly_name (str, optional): The label for the second y-axis. Defaults to "Values".
 
-        Returns:
+    Returns:
         None
-        """
+    """
 
     df = lire_data(file)
 
-    x_limit_date = [start_date,end_date]
+    x_limit_date = [start_date, end_date]
 
-    # Vérifier le type de coly
+    # Check the type of coly
     if isinstance(coly, str):
         coly = [coly]
 
-    #TODO Start x time after start or End y time before end
+    # TODO Start x time after start or End y time before end
 
     if x_limit_date[0]:
         x_limit[0] = get_unix_time_from_date(x_limit_date[0]) - df[colx].iloc[0]
@@ -86,7 +61,7 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
 
     print(x_limit)
 
-    try :
+    try:
         # Format x-axis based on timing parameter
         if timing == "sec":
             df[colx] = (df[colx] - df[colx].iloc[0])
@@ -96,13 +71,13 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
             x_limit[1] = x_limit[1] / 60
         elif timing == "hour":
             df[colx] = (df[colx] - df[colx].iloc[0]) / 3600
-            x_limit[0] = x_limit[0]/3600
+            x_limit[0] = x_limit[0] / 3600
             x_limit[1] = x_limit[1] / 3600
         else:
             raise Exception
     except Exception as e:
         print(e)
-        print("Timing need to be sec, min or hour !")
+        print("Timing needs to be sec, min, or hour!")
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -117,16 +92,16 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     ax.text(0.99, 1.01, f"CERN Run\n{day}-{month}-{year}",
             transform=ax.transAxes, ha='right', fontweight='bold')
 
-    # Récupérer les métadonnées du fichier
+    # Get the metadata of the file
     file_first_data_date = get_date_first_data(file)
     file_first_data_datetime = file_first_data_date.strftime("%Y-%m-%d %H:%M:%S")
     file_last_data_date = get_date_last_data(file)
     file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Afficher la date et l'heure de création sur le graphe
-    ax.text(-0.1, 1.13, f"File begin at : {file_first_data_datetime}",
+    # Display the file's creation date and time on the graph
+    ax.text(-0.1, 1.13, f"File begins at: {file_first_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
-    ax.text(-0.1, 1.1, f"File finish at : {file_last_data_datetime}",
+    ax.text(-0.1, 1.1, f"File finishes at: {file_last_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
 
     # Plot each column from coly on the first y-axis
@@ -149,13 +124,13 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
                 transform=ax.transAxes, ha='right', fontweight='bold')
 
     # Set axis labels and title
-    if colx=="Time" or colx=="LinuxTime":
+    if colx == "Time" or colx == "LinuxTime":
         ax.set_xlabel(f"Time since beginning ({timing})")
     else:
         ax.set_xlabel(colx)
     ax.set_ylabel(ax_y_name)
 
-    # Définir les valeurs par défaut pour start_time et end_time si elles ne sont pas spécifiées
+    # Define default values for start_time and end_time if not specified
     ax.set_xlim(x_limit[0], x_limit[1])
 
     # Set y-axis limit if provided
@@ -183,22 +158,65 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     # Show the plot
     plt.show()
 
-def plot_correlation_matrix(df: pd.DataFrame, take_columns: [str] = None):
 
-    if not take_columns:
-        # Exclude the first column from the DataFrame
-        df = df.iloc[:, 2:]
-    else:
-        # Subset the DataFrame based on the specified columns
-        df = df[take_columns]
+def plot_correlation_matrix(df: pd.DataFrame, exclude_columns: [str] = None,
+                            title: str = None,
+                            ):
+    """
+    Plot a correlation matrix heatmap.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame containing the data.
+        exclude_columns ([str], optional): The list of column names to exclude. Defaults to None.
+        title (str, optional): Title for the graph. Default to None.
+
+    Raises:
+        ValueError: If the DataFrame does not contain any numeric columns after excluding the specified columns.
+
+    Returns:
+        None
+    """
+
+    if exclude_columns:
+        # Filter out the columns to exclude
+        df = df.drop(columns=exclude_columns, errors='ignore')
+
+    # Select columns that contain numeric values
+    numeric_columns = df.select_dtypes(include=np.number).columns
+
+    if len(numeric_columns) == 0:
+        raise ValueError("The DataFrame does not contain any numeric columns.")
+
+    # Subset the DataFrame based on columns with numeric values
+    df = df[numeric_columns].iloc[:, 1:]
 
     # Compute the correlation matrix
     corr_matrix = np.corrcoef(df.values.T)
 
-    # Draw the heatmap
-    g = sns.heatmap(corr_matrix, annot=True, fmt=".1f",vmin=-1,vmax=1, center=0, cmap="PiYG")
+    # Check if the correlation matrix is symmetric
+    is_symmetric = np.allclose(corr_matrix, corr_matrix.T)
 
-    print(corr_matrix)
+    # Create a figure and axis for the heatmap
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=100)  # Adjust the values as needed
+
+    # Draw the heatmap
+    if is_symmetric:
+        print("Matrix is a triangle because of symmetry")
+        mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+        sns.heatmap(corr_matrix, annot=True, fmt=".1f", vmin=-1, vmax=1, center=0, cmap="seismic", mask=mask, ax=ax)
+    else:
+        sns.heatmap(corr_matrix, annot=True, fmt=".1f", vmin=-1, vmax=1, center=0, cmap="seismic", ax=ax)
+
+    # Get the column names from the DataFrame
+    column_names = df.columns
+
+    # Set the x and y labels using the column names
+    ax.set_xticklabels(column_names, rotation=90)
+    ax.set_yticklabels(column_names, rotation=0)
+
+    if title:
+        # Add title
+        ax.set_title(f"{title}")
 
     # Adjust the margins
     plt.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.2)

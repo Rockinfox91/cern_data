@@ -8,9 +8,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         # Create the argument parser
-        parser = argparse.ArgumentParser(description="Get graph from file")
-
-        # Create the argument parser
         parser = argparse.ArgumentParser(description="Generate a graph from data in a file.")
 
         # Add the arguments to the parser
