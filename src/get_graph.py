@@ -2,7 +2,7 @@ import sys
 import argparse
 
 from src.process.graph import *
-from src.process.data_analyse import *
+from src.process.time_thing import *
 
 if __name__ == "__main__":
 

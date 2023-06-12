@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import datetime
+import seaborn as sns
+import scipy
 
-from src.process.data_analyse import get_date_first_data,get_date_last_data,get_unix_time_from_date
+from src.process.time_thing import get_date_first_data,get_date_last_data,get_unix_time_from_date
 
 
 def lire_data(data_file_name: str) -> pd.DataFrame:
@@ -177,6 +179,29 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     # Save the plot if is_saving is True
     if is_saving and name:
         plt.savefig(f"img/cold_test/plot_{name}.png", dpi=300)
+
+    # Show the plot
+    plt.show()
+
+def plot_correlation_matrix(df: pd.DataFrame, take_columns: [str] = None):
+
+    if not take_columns:
+        # Exclude the first column from the DataFrame
+        df = df.iloc[:, 2:]
+    else:
+        # Subset the DataFrame based on the specified columns
+        df = df[take_columns]
+
+    # Compute the correlation matrix
+    corr_matrix = np.corrcoef(df.values.T)
+
+    # Draw the heatmap
+    g = sns.heatmap(corr_matrix, annot=True, fmt=".1f",vmin=-1,vmax=1, center=0, cmap="PiYG")
+
+    print(corr_matrix)
+
+    # Adjust the margins
+    plt.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.2)
 
     # Show the plot
     plt.show()

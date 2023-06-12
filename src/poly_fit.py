@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from src.process.graph import plot_correlation_matrix
 
 def lire_data(data_file_name):
     # Chemin vers le fichier de données
@@ -34,26 +35,6 @@ if __name__ == "__main__":
     print("----- Début programme -----")
     data = lire_data("copy_cern_data_run29")
 
-    fig, ax = plt.subplots(5)
+    # Plot the correlation matrix
+    plot_correlation_matrix(data)
 
-    temps = ["Ta", "Tb", "Tc", "Td", "Tamb"]
-    
-
-    # polynomial approximation
-
-    poly = []
-    poly_T = []
-
-    print(data)
-
-    for temp in range(len(temps)):
-        poly.append(np.polyfit(data["time"],data[temps[temp]],10))
-        poly_T.append(np.poly1d(poly[temp])(data["time"]))
-
-        ax[temp].plot(data["time"],data[temps[temp]])
-        ax[temp].plot(data["time"],poly_T[temp])
-        ax[temp].set_title(temps[temp])
-
-    
-
-    plt.show()
