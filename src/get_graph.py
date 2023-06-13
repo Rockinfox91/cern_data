@@ -46,10 +46,13 @@ if __name__ == "__main__":
                             )
 
         # To get graph of tensions and length from Linux File on the terminal
-        # python -m src.get_graph "RecordMonitoring_2023.06.12_09-06-37.txt" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-12-06" --colx "LinuxTime" --start-date "2023.06.12_11:50:00" --other-coly "Length2" "Length4" "LengthTot" --other-coly-name "Rope Length (cm)"
+        # python -m src.get_graph "RecordMonitoring_2023.06.12_09-06-37.txt" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.12_11:50:00" --other-coly "Length2" "Length4" "LengthTot" --other-coly-name "Rope Length (cm)"
 
         # To get graph of temperatures from Windows File on the terminal
         # python -m src.get_graph "copy_cern_data_run29.txt" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "graph_weekend" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
+
+        # To get the graph of temperatures from the 32 data appended
+        # python -m src.get_graph "final_data32.txt" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "temperature_since_friday_18:00" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
 
     else:
         print("use src.main --help")

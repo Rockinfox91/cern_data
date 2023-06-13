@@ -79,6 +79,9 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
         print(e)
         print("Timing needs to be sec, min, or hour!")
 
+
+    #TODO : Lacune donnée, tester le temps entre chaque donnée et si > 1h (exemple), ne pas afficher
+
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Get the current date
