@@ -17,8 +17,8 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
         IOError: Si le fichier spécifié n'existe pas.
     """
     # Chemin vers le fichier de données
-    chemin_fichier = f'data/{data_file_name}'
-    print(f"Lecture du fichier \"{chemin_fichier}\"")
+    chemin_fichier = f'data/{data_file_name}.txt'
+    print(f"Lecture du fichier \"{chemin_fichier}.txt\"")
 
     try:
         # Lecture du fichier en tant que DataFrame pandas
@@ -27,7 +27,7 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
         return df
 
     except IOError:
-        raise IOError(f"Le fichier {data_file_name} n'existe pas.")
+        raise IOError(f"Le fichier {data_file_name}.txt n'existe pas.")
 
 
 def append_data(file1_name: str, file2_name: str, name: str, sort_column: str):
@@ -48,6 +48,9 @@ def append_data(file1_name: str, file2_name: str, name: str, sort_column: str):
     Examples:
         >>> append_data("file1", "file2", "file_combined")
     """
+
+    #TODO : Take all files like file1 file2 and concatenate them. (parameter all bool)
+
     # Read the content of the first file
     with open(f'data/{file1_name}.txt', 'r') as file1:
         reader = csv.reader(file1, delimiter='\t')
