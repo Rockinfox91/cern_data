@@ -23,8 +23,8 @@ if __name__ == "__main__":
         parser.add_argument("--y-axis-label", type=str, default="Values",
                             help="The label for the y-axis. Defaults to 'Values'.")
         parser.add_argument("--save-plot", action="store_true", help="Whether to save the plot as an image.")
-        parser.add_argument("-t","--timing", choices=["sec", "min", "hour", "date"], default="min",
-                            help="The timing unit for the x-axis. Can be 'sec', 'min', 'hour', or 'date'. Defaults to 'min'.")
+        parser.add_argument("-t","--timing", choices=["sec", "min", "hour", "day"], default="min",
+                            help="The timing unit for the x-axis. Can be 'sec', 'min', 'hour', or 'day'. Defaults to 'min'.")
         parser.add_argument("--y-line", type=int, help="The y-coordinate of a horizontal line to add to the plot.")
         parser.add_argument("--y-line-label", type=str, help="The label for the y-line.")
         parser.add_argument("--start-date", type=str, default=None,
@@ -45,8 +45,11 @@ if __name__ == "__main__":
                             other_coly=args.other_coly, other_coly_name=args.other_coly_name
                             )
 
-        # To get graph of tensions and length from Linux File on the terminal
-        # python -m src.get_graph "RecordMonitoring_2023.06.12_09-06-37.txt" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.12_11:50:00" --other-coly "Length2" "Length4" "LengthTot" --other-coly-name "Rope Length (cm)"
+        # To get graph of length from linux file for morning routine
+        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42.txt" "Length2" "Length4" --y-axis-label "Length (cm)" -n "Length-2-4-Tot" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "hour" --other-coly "LengthTot" --other-coly-name "Length Total (cm)"
+
+        # To get graph of tension from linux file for morning routine
+        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42.txt" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "min" --y-limit 0 35
 
         # To get graph of temperatures from Windows File on the terminal
         # python -m src.get_graph "copy_cern_data_run29.txt" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "graph_weekend" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186

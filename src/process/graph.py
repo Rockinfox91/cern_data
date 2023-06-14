@@ -73,11 +73,15 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
             df[colx] = (df[colx] - df[colx].iloc[0]) / 3600
             x_limit[0] = x_limit[0] / 3600
             x_limit[1] = x_limit[1] / 3600
+        elif timing == "day":
+            df[colx] = (df[colx] - df[colx].iloc[0]) / 86400
+            x_limit[0] = x_limit[0] / 86400
+            x_limit[1] = x_limit[1] / 86400
         else:
             raise Exception
     except Exception as e:
         print(e)
-        print("Timing needs to be sec, min, or hour!")
+        print("Timing needs to be sec, min, hour, or day!")
 
 
     #TODO : Lacune donnée, tester le temps entre chaque donnée et si > 1h (exemple), ne pas afficher
