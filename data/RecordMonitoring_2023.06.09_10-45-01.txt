@@ -1,1 +1,0 @@
-LinuxTime	Length2	Length4	Tension2	Tension4	TargetLength2	TargetLength4	ErrLength2	ErrLength4	LengthTot	DayTime

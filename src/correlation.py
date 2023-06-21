@@ -24,16 +24,16 @@ if __name__ == "__main__":
         args = parser.parse_args()
 
         # Iterate over the file names provided
-        for i, file_name in range(len(args.files)), args.files:
+        for file_name in args.files:
             data_read = lire_data(file_name)
-            plot_correlation_matrix(data_read, exclude_columns=args.exclude_columns, title=title)
+            plot_correlation_matrix(data_read, exclude_columns=args.exclude_columns, title=args.title)
 
         if args.merge:
             data_merged = merge_dataframes_by_unix(lire_data(args.files[0]), lire_data(args.files[1]))
-            plot_correlation_matrix(data_merged, exclude_columns=args.exclude_columns, title=args.title)
+            plot_correlation_matrix(data_merged, exclude_columns=args.exclude_columns, title=args.title[0])
 
     # To get a correlation graph of both Windows and Linux datas :
-    # python -m src.correlation "copy_cern_data_run29.txt" "RecordMonitoring_2023.06.11_14-59-26.txt" -m -ec "CryoL" "FlowIn" "Hin"
+    # python -m src.correlation "linux_final_data" "windows_final_data" -m -ec "CryoL" "FlowIn" "Hin" -t "Linear Correlation between LinuxData and WindowsData"
 
     else:
 

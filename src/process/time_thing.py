@@ -59,7 +59,7 @@ def get_date_first_data(file: str) -> datetime:
     Returns:
         datetime: The datetime of the first data point.
     """
-    filename = f"data/{file}"
+    filename = f"data/{file}.txt"
     donnees = np.genfromtxt(filename, delimiter='\t', skip_header=1)
     date = donnees[0][0] - 263
     realdate = datetime.fromtimestamp(date)
@@ -76,7 +76,7 @@ def get_date_last_data(file: str) -> datetime:
     Returns:
         datetime: The datetime of the last data point.
     """
-    filename = f"data/{file}"
+    filename = f"data/{file}.txt"
     donnees = np.genfromtxt(filename, delimiter='\t', skip_header=1)
     date = donnees[-1][0] - 263
     realdate = datetime.fromtimestamp(date)

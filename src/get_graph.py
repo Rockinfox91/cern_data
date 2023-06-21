@@ -46,16 +46,25 @@ if __name__ == "__main__":
                             )
 
         # To get graph of length from linux file for morning routine
-        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42.txt" "Length2" "Length4" --y-axis-label "Length (cm)" -n "Length-2-4-Tot" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "hour" --other-coly "LengthTot" --other-coly-name "Length Total (cm)"
+        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-28-54" "Length2" "Length4" --y-axis-label "Length (cm)" -n "Length-2-4-Tot" --colx "LinuxTime" --start-date "2023.06.16_09:50:00" --end-date "2023.06.16_12:15:00" --timing "hour" --other-coly "LengthTot" --other-coly-name "Length Total (cm)"
 
         # To get graph of tension from linux file for morning routine
-        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42.txt" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "min" --y-limit 0 35
+        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "min" --y-limit 0 35
+
+        # To get graph of length from linux file for afternoon program
+        # python -m src.get_graph "linux_final_data" "Length2" "Length4" --y-axis-label "Length (cm)" -n "Length-2-4-Tot" --colx "LinuxTime" --timing "hour" --other-coly "LengthTot" --start-date "2023.06.16_13:35:00" --other-coly-name "Length Total (cm)"
+
+        # To get graph of tension from linux file for afternoon program
+        # python -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.16_13:35:00" --end-date "2023.06.16_17:40:00" --timing "hour" --y-limit 0 35
+
+        # To get graph of tension from all data appended
+        # python -m src.get_graph "linux_final_data" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --timing "day" --y-limit 0 60
 
         # To get graph of temperatures from Windows File on the terminal
-        # python -m src.get_graph "copy_cern_data_run29.txt" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "graph_weekend" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
+        # python -m src.get_graph "copy_cern_data_run29" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "graph_weekend" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
 
-        # To get the graph of temperatures from the 32 data appended
-        # python -m src.get_graph "final_data32.txt" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "hour" --name "temperature_since_friday_18:00" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
+        # To get the graph of temperatures from all data appended
+        #  python -m src.get_graph "windows_final_data" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "day" --name "temperature_since_friday_18:00" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
 
     else:
         print("use src.main --help")

@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 import datetime
 import seaborn as sns
-import scipy
+from scipy.fftpack import idct
 
 from src.process.time_thing import get_date_first_data, get_date_last_data, get_unix_time_from_date
-from src.process.data_analyse import lire_data
+from src.process.data_analyse import lire_data, calculate_dct
 
 
 def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = None,
@@ -47,8 +47,6 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     if isinstance(coly, str):
         coly = [coly]
 
-    # TODO Start x time after start or End y time before end
-
     if x_limit_date[0]:
         x_limit[0] = get_unix_time_from_date(x_limit_date[0]) - df[colx].iloc[0]
     if x_limit_date[1]:
@@ -77,14 +75,14 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
             df[colx] = (df[colx] - df[colx].iloc[0]) / 86400
             x_limit[0] = x_limit[0] / 86400
             x_limit[1] = x_limit[1] / 86400
+            # TODO: Si days, afficher les jours en date.
         else:
             raise Exception
     except Exception as e:
         print(e)
         print("Timing needs to be sec, min, hour, or day!")
 
-
-    #TODO : Lacune donnée, tester le temps entre chaque donnée et si > 1h (exemple), ne pas afficher
+    # TODO : affichage data à partir de start_date = t0.
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -106,10 +104,12 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
 
     # Display the file's creation date and time on the graph
-    ax.text(-0.1, 1.13, f"File begins at: {file_first_data_datetime}",
+    ax.text(-0.1, 1.13, f"Data file begins at: {file_first_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
-    ax.text(-0.1, 1.1, f"File finishes at: {file_last_data_datetime}",
+    ax.text(-0.1, 1.1, f"Data file finishes at: {file_last_data_datetime}",
             transform=ax.transAxes, ha='left', va='top')
+
+    # TODO: ajouter Graph begins at ... end at ...
 
     # Plot each column from coly on the first y-axis
     color_palette = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -229,4 +229,70 @@ def plot_correlation_matrix(df: pd.DataFrame, exclude_columns: [str] = None,
     plt.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.2)
 
     # Show the plot
+    plt.show()
+
+def plot_data_with_dct(data, x, y, max_freq=20, time_lower=None, time_upper=None):
+    """
+    Plot data, DCT coefficients, and corresponding sinusoid.
+
+    Args:
+        data (pd.DataFrame): Input DataFrame containing the data.
+        x (str): Name of the column representing the x values.
+        y (str): Name of the column representing the y values.
+        max_freq (int, optional): Maximum frequency to consider.
+        time_lower (int, optional): Lower time bound for filtering.
+        time_upper (int, optional): Upper time bound for filtering.
+    """
+
+    # Create a copy of the input DataFrame
+    data_copy = data.copy()
+
+    # Apply time filters if specified
+    if time_lower is not None:
+        data_copy = data_copy[data_copy[x] >= time_lower]
+    if time_upper is not None:
+        data_copy = data_copy[data_copy[x] <= time_upper]
+
+    # Calculate the DCT coefficients
+    dct_result = calculate_dct(data_copy, y)
+
+    print(dct_result)
+
+    # Get the indices and values of the top max_freq coefficients
+    top_indices = np.argsort(np.abs(dct_result))[-max_freq:]
+    top_coefficients = dct_result[top_indices]
+
+    # Calculate the sampling frequency
+    sampling_frequency = 1 / np.mean(np.diff(data_copy[x]))
+
+    # Calculate the physical frequencies
+    physical_frequencies = top_indices / len(data_copy) * sampling_frequency
+
+    # Create a table with the frequencies, coefficients, mean value, and physical frequencies
+    table_data = {
+        'Frequency': physical_frequencies,
+        'Coefficient': top_coefficients/np.sqrt(len(data_copy)),
+    }
+    table = pd.DataFrame(table_data)
+
+    # Plot the data and the reconstructed sinusoid
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(data_copy[x], data_copy[y], label=y)
+    dct_first_n = np.zeros(len(data_copy))
+    dct_first_n[top_indices] = top_coefficients
+    reconstructed_signal = idct(dct_first_n, norm='ortho')
+    ax.plot(data_copy[x], reconstructed_signal, label=f'DCT {max_freq} Coefficients')
+
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Amplitude')
+    ax.set_title('Data and Reconstructed Signal')
+    ax.legend()
+
+    # Display the table
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.axis('off')
+    ax.table(cellText=table.values, colLabels=table.columns, cellLoc='center', loc='center')
+
+    plt.tight_layout()
     plt.show()
