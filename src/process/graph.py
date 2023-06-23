@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import datetime
+from datetime import datetime
 import seaborn as sns
 from scipy.fftpack import idct
 
@@ -87,7 +87,7 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Get the current date
-    current_date = datetime.datetime.now()
+    current_date = datetime.now()
 
     # Extract year, month, and day as strings
     year = str(current_date.year)
@@ -231,68 +231,221 @@ def plot_correlation_matrix(df: pd.DataFrame, exclude_columns: [str] = None,
     # Show the plot
     plt.show()
 
-def plot_data_with_dct(data, x, y, max_freq=20, time_lower=None, time_upper=None):
+
+def scatter_hist(df):
     """
-    Plot data, DCT coefficients, and corresponding sinusoid.
+        Generate a scatter histogram plot based on the provided DataFrame.
 
-    Args:
-        data (pd.DataFrame): Input DataFrame containing the data.
-        x (str): Name of the column representing the x values.
-        y (str): Name of the column representing the y values.
-        max_freq (int, optional): Maximum frequency to consider.
-        time_lower (int, optional): Lower time bound for filtering.
-        time_upper (int, optional): Upper time bound for filtering.
+        Parameters:
+        - df (pandas.DataFrame): The input DataFrame containing the necessary data columns.
+
+        Returns:
+        None
+
+        This function generates a scatter histogram plot using the specified DataFrame. The plot includes:
+        - Joint scatter plot with custom colors defined by the 'Category' column
+        - Mean and standard deviation values displayed for each 'Puller' group
+        - Logarithmic x-axis scale
+        - Dashed lines representing different time constants
+        - Legend for the type of points
+        - Customized figure size and margins
+
+        The DataFrame is expected to have the following columns:
+        - 'Puller': Categorical column representing different groups or categories
+        - 'Position': Categorical column representing different positions
+        - 'time': Numeric column representing the time on position (in minutes)
+        - 'TensionMax': Numeric column representing the maximum tension (in Newtons) 10 seconds after movement
+
+        Example usage:
+        >>> scatter_hist(data_df)
+
+        Note:
+        - This function requires the 'seaborn' and 'matplotlib' libraries.
     """
+    # Définir les nuances de rouge et de bleu
+    red_palette = sns.color_palette("Reds", 1)
+    blue_palette = sns.color_palette("Blues", 1)
 
-    # Create a copy of the input DataFrame
-    data_copy = data.copy()
+    # Combiner les palettes de couleurs
+    custom_palette = red_palette + blue_palette
 
-    # Apply time filters if specified
-    if time_lower is not None:
-        data_copy = data_copy[data_copy[x] >= time_lower]
-    if time_upper is not None:
-        data_copy = data_copy[data_copy[x] <= time_upper]
+    # Combinaison des paramètres "Puller" et "Position" en une seule variable
+    df["Category"] = df["Puller"] + " - " + df["Position"]
 
-    # Calculate the DCT coefficients
-    dct_result = calculate_dct(data_copy, y)
+    # Trier la colonne 'Category' par ordre alphabétique
+    df_sorted = df.sort_values('Position',ascending=False)
 
-    print(dct_result)
+    # Créer le histogramme joint avec les couleurs définies par "Category" et la palette personnalisée
+    jointplot = sns.jointplot(data=df_sorted, x="time", y="TensionMax", hue="Puller", markers=["o", "s", "^", '*'],
+                              palette=custom_palette, style=df_sorted["Position"], ylim=(7, 32))
+    # TODO Symbole à la place de la palette de couleur
 
-    # Get the indices and values of the top max_freq coefficients
-    top_indices = np.argsort(np.abs(dct_result))[-max_freq:]
-    top_coefficients = dct_result[top_indices]
+    # Obtenir valeur moyenne et répartition de distribution
+    mean = {}
+    std = {}
+    for pull, group in df.groupby('Puller'):
+        mean[pull] = group["TensionMax"].mean()
+        std[pull] = group["TensionMax"].std()
 
-    # Calculate the sampling frequency
-    sampling_frequency = 1 / np.mean(np.diff(data_copy[x]))
+    # Changer le nom de l'axe des abscisses (x-axis)
+    jointplot.ax_joint.set_xlabel("Time on position (min)")
 
-    # Calculate the physical frequencies
-    physical_frequencies = top_indices / len(data_copy) * sampling_frequency
+    # Retirer distribution x
+    jointplot.ax_marg_x.remove()
 
-    # Create a table with the frequencies, coefficients, mean value, and physical frequencies
-    table_data = {
-        'Frequency': physical_frequencies,
-        'Coefficient': top_coefficients/np.sqrt(len(data_copy)),
-    }
-    table = pd.DataFrame(table_data)
+    # Changer le nom de l'axe des ordonnées (y-axis)
+    jointplot.ax_joint.set_ylabel("Max Tension 10s after moved (N)")
 
-    # Plot the data and the reconstructed sinusoid
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Axe des x en logarithmique
+    plt.xscale('log')
 
-    ax.plot(data_copy[x], data_copy[y], label=y)
-    dct_first_n = np.zeros(len(data_copy))
-    dct_first_n[top_indices] = top_coefficients
-    reconstructed_signal = idct(dct_first_n, norm='ortho')
-    ax.plot(data_copy[x], reconstructed_signal, label=f'DCT {max_freq} Coefficients')
+    # Ajouter les lignes en pointillés pour les constantes temporelles
+    time_constants = [1, 10, 30, 60, 120,1000]  # Valeurs des constantes temporelles à représenter
+    time_constants_name = ["1min", "10min", "30min", "1h", "2h","1 Night"]
 
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Amplitude')
-    ax.set_title('Data and Reconstructed Signal')
-    ax.legend()
+    # Get the axes of the jointplot
+    ax_joint = jointplot.ax_joint
 
-    # Display the table
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.axis('off')
-    ax.table(cellText=table.values, colLabels=table.columns, cellLoc='center', loc='center')
+    #Ajout des différentes lignes
 
-    plt.tight_layout()
+    plt.axhline(y=mean["DS2"], linestyle="--", color="blue", linewidth=0.2)
+    # Ajout du texte aux coordonnées spécifiées
+    ax_joint.annotate(r"$\mu_{DS2}$ = "+f"{round(mean['DS2'],2)}N", xy=(250, mean["DS2"]+0.2), xycoords='data', ha='left',
+                      va='bottom', fontsize=10, color="blue")
+    ax_joint.annotate(r"$\sigma_{DS2}$ = " + f"{round(std['DS2'], 2)}N", xy=(250, mean["DS2"]-0.2), xycoords='data', ha='left',
+                      va='top', fontsize=10, color="blue")
+    plt.axhline(y=mean["DS4"], linestyle="--", color="red", linewidth=0.2)
+    # Ajout du texte aux coordonnées spécifiées
+    ax_joint.annotate(r"$\mu_{DS4}$ = "+f"{round(mean['DS4'],2)}N", xy=(250, mean["DS4"]+0.2), xycoords='data', ha='left',
+                      va='bottom', fontsize=10, color="red")
+    ax_joint.annotate(r"$\sigma_{DS4}$ = " + f"{round(std['DS4'], 2)}N", xy=(250, mean["DS4"]-0.2), xycoords='data',
+                      ha='left', va='top', fontsize=10, color="red")
+
+    for i in range(len(time_constants)):
+        # Ajouter une ligne en pointillés
+        plt.axvline(x=time_constants[i], linestyle="--", color="gray", linewidth=0.2)
+        # Ajout du texte aux coordonnées spécifiées
+        ax_joint.annotate(time_constants_name[i], xy=(time_constants[i], 30), xycoords='data', ha='left',
+                          va='center', fontsize=10, color="gray")
+
+    # Customize the legend
+    legend = ax_joint.legend(title='Type of points')
+    # Position the legend outside the plot
+    legend.set_bbox_to_anchor((-0.2, 1))  # Adjust the values as needed
+    # Set the properties of the legend box
+    legend.get_frame().set_linewidth(2)  # Border width
+
+    jointplot.ax_marg_x.set_aspect(2)  # Adjust the aspect ratio as needed
+    # Resize the figure or adjust subplot ratios
+    jointplot.fig.set_size_inches(10, 6)  # Adjust the values as needed
+    # Adjust the figure margins
+    jointplot.fig.tight_layout()
+
     plt.show()
+
+
+def get_afternoon_tension_data(file: str, time: [[str]]):
+    """
+       Extract tension data for the afternoon periods specified in the given file.
+
+       Parameters:
+       - file (str): The path to the file containing the data.
+       - time (list of lists): The list of time periods in the format [[start_time1, end_time1], [start_time2, end_time2], ...],
+                               where start_time and end_time are strings representing timestamps in the format "%Y.%m.%d_%H:%M:%S".
+
+       Returns:
+       pandas.DataFrame: The final DataFrame containing the extracted tension data for the specified afternoon periods.
+
+       This function reads data from the specified file and extracts tension data for the afternoon periods defined by the 'time' parameter.
+       It creates a new DataFrame with columns 'TensionMax', 'time', 'Puller', and 'Position' to store the extracted data.
+       The function performs the following steps for each afternoon period:
+       - Converts the start and end times to datetime objects.
+       - Retrieves data within the specified time range.
+       - Processes the data to identify movement events and calculate relevant values.
+       - Appends the extracted tension data to the final DataFrame.
+
+       Example usage:
+       >>> afternoon_data = get_afternoon_tension_data('datafile', [['2023.06.23_13:00:00', '2023.06.23_17:00:00'], ['2023.06.24_14:30:00', '2023.06.24_16:30:00']])
+
+       Note:
+       - This function requires the 'pandas' library.
+       - The input file is expected to contain the necessary columns: 'LinuxTime', 'Length2', 'TargetLength2', 'Tension2', and 'Tension4'.
+    """
+    all_data = lire_data(file)
+    final_df = pd.DataFrame(columns=['TensionMax', 'time', 'Puller', 'Position'])
+    date_format = "%Y.%m.%d_%H:%M:%S"
+    total_i = 0
+    for period in time:
+        start_time = period[0]
+        end_time = period[1]
+        # Convertir la chaîne de caractères en objet datetime
+        start_date_obj = datetime.strptime(start_time, date_format)
+        end_date_obj = datetime.strptime(end_time, date_format)
+
+        # Obtenir le timestamp Unix
+        start_unix = start_date_obj.timestamp()
+        end_unix = end_date_obj.timestamp()
+
+        boundary_data = all_data[(all_data["LinuxTime"] > start_unix) & (all_data["LinuxTime"] < end_unix)]
+
+        i = 0
+        unixtime_from_start_move = 0
+        unixtime_from_end_move = 0
+        # Créer un DataFrame vide
+        df = pd.DataFrame(columns=['TensionMax', 'time', 'Puller', 'Position'])
+        for index, row in boundary_data.iterrows():
+            actual_length = row['Length2']
+            target_length = row['TargetLength2']
+            unixtime = row['LinuxTime']
+
+            # Récupère le moment où la source bouge
+            if target_length != 0 and all_data["TargetLength2"].iloc[index - 1] == 0:
+                puller = "DS4" if (actual_length < target_length) else "DS2"
+                i += 1
+
+                unixtime_from_start_move = unixtime
+                time_position_stayed_here = unixtime - unixtime_from_end_move
+                # Ajouter une nouvelle ligne
+                sensibility = 5
+                if (actual_length < 577 + sensibility) and (actual_length > 577 - sensibility):
+                    position = "D"
+                elif (actual_length < 557 + sensibility) and (actual_length > 557 - sensibility):
+                    position = "C"
+                elif (actual_length < 516 + sensibility) and (actual_length > 516 - sensibility):
+                    position = "B"
+                elif (actual_length < 453 + sensibility) and (actual_length > 453 - sensibility):
+                    position = "A"
+                elif (actual_length < 585 + sensibility) and (actual_length > 585 - sensibility):
+                    position = "Cold_Garage"
+                elif (actual_length < 605 + sensibility) and (actual_length > 605 - sensibility):
+                    position = "Hot_Garage"
+                elif actual_length > 585:
+                    position = "Unknown_Garage"
+                else:
+                    position = "Not found"
+
+                nouvelle_ligne = {"TensionMax": row["Tension4"], "Puller": puller, "Position": position,
+                                  'time': int(time_position_stayed_here / 60)}
+                df = pd.concat([df, pd.DataFrame(nouvelle_ligne, index=[0])], ignore_index=True)
+
+            # Récupère le moment où la source a fini de bouger
+            if target_length == 0 and all_data["TargetLength2"].iloc[index - 1] != 0:
+                unixtime_from_end_move = unixtime
+
+            # Récupérer tension max dans les 10 secondes après mouvement
+            if (unixtime <= unixtime_from_start_move + 10):
+                tension2_value = row["Tension2"]
+                tension4_value = row["Tension4"]
+                if puller == "DS2" and tension2_value > df["TensionMax"].iloc[-1]:
+                    df.loc[df.index[-1], 'TensionMax'] = tension2_value
+                if puller == "DS4" and tension4_value > df["TensionMax"].iloc[-1]:
+                    df.loc[df.index[-1], 'TensionMax'] = tension4_value
+
+        print(f"{i} data found.")
+        total_i += i
+        # Utilisez la fonction concat pour les concaténer
+        final_df = pd.concat([final_df, df])
+    print(df)
+    print(f"Total data found : {total_i}")
+    return final_df
+
