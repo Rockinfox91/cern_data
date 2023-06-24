@@ -312,13 +312,13 @@ def scatter_hist(df):
     # Ajout du texte aux coordonnées spécifiées
     ax_joint.annotate(r"$\mu_{DS2}$ = "+f"{round(mean['DS2'],2)}N", xy=(250, mean["DS2"]+0.2), xycoords='data', ha='left',
                       va='bottom', fontsize=10, color="blue")
-    ax_joint.annotate(r"$\sigma_{DS2}$ = " + f"{round(std['DS2'], 2)}N", xy=(250, mean["DS2"]-0.2), xycoords='data', ha='left',
+    ax_joint.annotate(r"$\sigma_{DS2}$ = " + f"{round(std['DS2'], 2)}N", xy=(250, mean["DS2"]-0.3), xycoords='data', ha='left',
                       va='top', fontsize=10, color="blue")
     plt.axhline(y=mean["DS4"], linestyle="--", color="red", linewidth=0.2)
     # Ajout du texte aux coordonnées spécifiées
     ax_joint.annotate(r"$\mu_{DS4}$ = "+f"{round(mean['DS4'],2)}N", xy=(250, mean["DS4"]+0.2), xycoords='data', ha='left',
                       va='bottom', fontsize=10, color="red")
-    ax_joint.annotate(r"$\sigma_{DS4}$ = " + f"{round(std['DS4'], 2)}N", xy=(250, mean["DS4"]-0.2), xycoords='data',
+    ax_joint.annotate(r"$\sigma_{DS4}$ = " + f"{round(std['DS4'], 2)}N", xy=(250, mean["DS4"]-0.3), xycoords='data',
                       ha='left', va='top', fontsize=10, color="red")
 
     for i in range(len(time_constants)):
