@@ -33,6 +33,17 @@ def lire_data(data_file_name: str) -> pd.DataFrame:
     except IOError:
         raise IOError(f"Le fichier {data_file_name}.txt n'existe pas.")
 
+def lire_exel_data(file: str):
+    # Specify the path to your Excel file
+    file_path = f'data/{file}.xlsx'
+
+    # Read the Excel file and create a DataFrame
+    df = pd.read_excel(file_path)
+
+    # Print the DataFrame
+    print(df)
+
+    return df
 
 def get_all_files_like(start_name):
     file_names = glob.glob(os.path.join(f"data/{start_name}*"))

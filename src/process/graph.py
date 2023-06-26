@@ -14,7 +14,7 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
                         ax_y_name: [str] = "Values", is_saving: bool = False, timing: str = "min",
                         put_y_line: int = None, y_line_name=None,
                         start_date: str = None, end_date: str = None,
-                        other_coly: str = None, other_coly_name: str = "Values"):
+                        other_coly: str = None, other_coly_name: str = "Values", df_given: bool=False):
     """
     Generate a graph from data in a file.
 
@@ -34,12 +34,15 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
         - end_date (str, optional): The end date for the x-axis. Defaults to None.
         - other_coly (str, optional): The column to plot on the second y-axis. Defaults to None.
         - other_coly_name (str, optional): The label for the second y-axis. Defaults to "Values".
-
+        - df (bool, optional): if file is a df.
     Returns:
         None
     """
 
-    df = lire_data(file)
+    if not isinstance(file, pd.DataFrame):
+        df = lire_data(file)
+    else:
+        df = file
 
     x_limit_date = [start_date, end_date]
 
@@ -97,17 +100,18 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     ax.text(0.99, 1.01, f"CERN Run\n{day}-{month}-{year}",
             transform=ax.transAxes, ha='right', fontweight='bold')
 
-    # Get the metadata of the file
-    file_first_data_date = get_date_first_data(file)
-    file_first_data_datetime = file_first_data_date.strftime("%Y-%m-%d %H:%M:%S")
-    file_last_data_date = get_date_last_data(file)
-    file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
+    if not isinstance(file, pd.DataFrame):
+        # Get the metadata of the file
+        file_first_data_date = get_date_first_data(file)
+        file_first_data_datetime = file_first_data_date.strftime("%Y-%m-%d %H:%M:%S")
+        file_last_data_date = get_date_last_data(file)
+        file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Display the file's creation date and time on the graph
-    ax.text(-0.1, 1.13, f"Data file begins at: {file_first_data_datetime}",
-            transform=ax.transAxes, ha='left', va='top')
-    ax.text(-0.1, 1.1, f"Data file finishes at: {file_last_data_datetime}",
-            transform=ax.transAxes, ha='left', va='top')
+        # Display the file's creation date and time on the graph
+        ax.text(-0.1, 1.13, f"Data file begins at: {file_first_data_datetime}",
+                transform=ax.transAxes, ha='left', va='top')
+        ax.text(-0.1, 1.1, f"Data file finishes at: {file_last_data_datetime}",
+                transform=ax.transAxes, ha='left', va='top')
 
     # TODO: ajouter Graph begins at ... end at ...
 
@@ -267,7 +271,7 @@ def scatter_hist(df):
     blue_palette = sns.color_palette("Blues", 1)
 
     # Combiner les palettes de couleurs
-    custom_palette = red_palette + blue_palette
+    custom_palette = blue_palette + red_palette
 
     # Combinaison des paramètres "Puller" et "Position" en une seule variable
     df["Category"] = df["Puller"] + " - " + df["Position"]
@@ -300,8 +304,8 @@ def scatter_hist(df):
     plt.xscale('log')
 
     # Ajouter les lignes en pointillés pour les constantes temporelles
-    time_constants = [1, 10, 30, 60, 120,1000]  # Valeurs des constantes temporelles à représenter
-    time_constants_name = ["1min", "10min", "30min", "1h", "2h","1 Night"]
+    time_constants = [1, 10, 30, 60, 120,1000,3800]  # Valeurs des constantes temporelles à représenter
+    time_constants_name = ["1min", "10min", "30min", "1h", "2h","1 Night","Weekend"]
 
     # Get the axes of the jointplot
     ax_joint = jointplot.ax_joint
