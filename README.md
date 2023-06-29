@@ -49,9 +49,13 @@ To get the graph of temperatures from all data
 ````shell
 python3 -m src.get_graph "windows_final_data" "Ta" "Tb" "Tc" "Td" --y-axis-label "Temperature (°C)" --colx "Time" -t "day" --name "temperature_since_friday_18:00" --start-date "2023.06.09_18:00:00" --y-limit -200 -90 --y-line -186
 ````
-To get graph of length from linux file for afternoon program
+To get graph of length from linux file for stress test
 ````shell
-python3 -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.16_13:35:00" --end-date "2023.06.16_17:40:00" --timing "hour" --y-limit 0 35
+python3 -m src.get_graph "RecordMonitoring_2023.06.14_09-25-42" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.14_10:15:00" --timing "min" --y-limit 0 35
+````
+To get graph of length from linux file for calibration test
+````shell
+python3 -m src.get_graph "RecordMonitoring_2023.06.15_09-03-15" "Tension2" "Tension4" --y-axis-label "Tension (N)" -n "Tension-2-4" --colx "LinuxTime" --start-date "2023.06.15_13:35:00" --end-date "2023.06.15_17:32:00" --timing "hour" --y-limit 0 35
 ````
 
 ## calib_graph
@@ -61,7 +65,7 @@ python3 -m src.calib_graph
 ````
 
 ## append_data
-Generate a file from all file data given.
+Generate a file from all file data given. Not needed if there is no new data.
 ````shell
 python3 -m src.append_data file1 sorting_column finalname [options]
 ````
