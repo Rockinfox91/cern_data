@@ -152,4 +152,6 @@ cython_debug/
 .idea/
 
 cern_data.zip
+data/linux_final_data.txt
+data/windows_final_data.txt
 
