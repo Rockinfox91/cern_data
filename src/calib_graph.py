@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from src.process.graph import scatter_hist, get_afternoon_tension_data
 
-all_periods = [["2023.06.15_14:25:00","2023.06.15_17:37:00"],
+all_periods = [["2023.06.15_14:25:00","2023.06.15_17:32:00"],
               ["2023.06.16_13:35:00","2023.06.16_17:37:00"],
               ["2023.06.19_14:10:00", "2023.06.19_17:22:00"],
               ["2023.06.20_11:49:00", "2023.06.21_09:49:00"],
@@ -22,4 +22,8 @@ if __name__ == "__main__":
                           (finaldata["Position"] == 'C') | (finaldata["Position"] == 'D')]
 
     finaldata = finaldata[finaldata["time"]<50000]
+    weird_values = finaldata[finaldata['TensionMax']<15]
+    for index, row in weird_values.iterrows():
+        print(f"Tension: {row['TensionMax']} at {row['time_max_tension']}")
+        print(row)
     scatter_hist(finaldata)

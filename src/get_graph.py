@@ -33,7 +33,8 @@ if __name__ == "__main__":
                             help="The end date \"YEAR.MONTH.DAY_HOUR:MIN:SEC\"for the x-axis.")
         parser.add_argument("--other-coly", type=str, nargs="+", help="The column(s) to plot on the twin y-axis.")
         parser.add_argument("--other-coly-name", type=str, help="The label for the twin y-axis. Defaults to 'Values'.")
-
+        parser.add_argument("--x-lines", type=str, nargs='+',default=None, help="The time coordinate for a vertical line to add on the plot, need to be a date in format YEAR.MONTH.DAY_HOUR:MINUTE:SECOND.")
+        parser.add_argument("--x-lines-names", type=str, nargs='+', default=None, help="Names for every vertical line, in the same order.")
         # Parse the command-line arguments
         args = parser.parse_args()
 
@@ -42,7 +43,8 @@ if __name__ == "__main__":
                             y_limit=args.y_limit, ax_y_name=args.y_axis_label,
                             is_saving=args.save_plot, timing=args.timing, put_y_line=args.y_line,
                             y_line_name=args.y_line_label, start_date=args.start_date, end_date=args.end_date,
-                            other_coly=args.other_coly, other_coly_name=args.other_coly_name
+                            other_coly=args.other_coly, other_coly_name=args.other_coly_name,
+                            put_x_line=(args.x_lines, args.x_lines_names)
                             )
 
         # To get graph of length from linux file for morning routine

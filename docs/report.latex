@@ -1,0 +1,435 @@
+%%%%%%%%%%% En-tête %%%%%%%%%%%%%
+\documentclass[12pt]{article}		            % Précise le type de document, et la taille de la police de caractère
+\counterwithin*{section}{part} % Pour que les sections soit des sous partie de part (comptage)
+\usepackage[margin=2.5cm]{geometry}             % Précise les marges du document
+\usepackage{amsmath,amsthm,amssymb,amsfonts}	% Pour pouvoir inclure certains symboles et environnements mathématiques
+\usepackage[english]{babel}	                    % Pour préciser la langue du document
+\usepackage[utf8]{inputenc}                     % accents codés dans la fonte
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}	                        % Pour inclure des images
+\graphicspath{{image/}}
+
+\usepackage[colorlinks]{hyperref}               % Pour inclure des liens (URL)
+\usepackage{url}
+
+\usepackage{enumitem}                           % Pour avoir des jouli listes
+
+\usepackage{subfig} % pour avoir des sous graphiques
+
+\usepackage{awesomebox} % Pour avoir des box
+\usepackage{natbib} % Pour avoir une bibliothèque
+
+%%%%%%%%%%%% En tete et pied de page style
+\usepackage{fancyhdr}
+
+\pagestyle{fancy} % activer le style d'en-tête et de pied de page personnalisé
+% Configuration de l'en-tête et du pied de page :
+\fancyhf{} % effacer les en-têtes et les pieds de page existants
+
+\fancyhead[R]{\thepage}
+\fancyhead[L]{\textbf{Summer Student Program - Internship report}}
+
+%%%%%%%%%%%%%
+
+% Pour avoir des Bracket sympatoche
+\usepackage{mathtools}
+\DeclarePairedDelimiter\bra{\langle}{\rvert}
+\DeclarePairedDelimiter\ket{\lvert}{\rangle}
+\DeclarePairedDelimiterX\braket[2]{\langle}{\rangle}{#1 \delimsize\vert #2}
+
+%%%%%%%%%%%%%
+\usepackage{listings} % Pour pouvoir afficher du code
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+%%%%%%%%%%%%
+
+\theoremstyle{definition}                       % Définition d'environnements
+    \newtheorem{definition}{Définition}[section]
+    \newtheorem*{conclusion}{Conclusion}
+    \newtheorem*{remark}{Remarque}
+    \newtheorem*{ex}{Exemple}
+    \newtheorem*{question}{Question}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}                                % Début du document
+\thispagestyle{empty}	                        % Pour éviter d'avoir un en-tête et un pied de page sur la page couverture
+\begin{center}
+    \includegraphics[width=7cm]{img/logo/cern_logo.png}	    % Pour inclure le logo (on précise la largeur de l'image)
+\end{center}
+
+\vspace{1cm}	                                % Espacement vertical
+\begin{center}	                                % On centre le texte
+    {\huge Summer Student Programme 2023 }\\                        % \huge fait que le texte est gros, \bf fait que le texte est gras
+    \vspace{1cm}
+    {\huge \bf “R\&D on LAr-TPC for neutrinos and rare
+events” } \\
+    \vspace{0.5cm}
+    \textit{Supervisors : Pascal PRALAVORIO (CPPM) \& Francesco PIETROPAOLO (CERN)} \\
+    \vspace{3cm}
+    \begin{abstract}
+
+    \end{abstract}
+    \vfill	                                    % On va jusqu'au bas de la page avant de mettre le texte ci-dessous
+    \textbf{Lucas BOISTAY}\\
+    \vspace{0.5cm}
+    Summer 2023
+\end{center}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+For my post-graduation internship, I was accepted in the CERN Summer Student Programme. During 11 weeks, I was working on precise important research project in very interesting fields of physics.
+
+Firstly, I worked on the DarkSide-20k, which is aimed at detection of dark matter. For the most part of it, I was monitoring the prototype of the final guide tube system, which will calibrate the TPC. Furthermore, I was analysing the data to understand how the motor system react through stress, or different periods left without any move (ice formation).
+
+\part{Calibration of DarkSide-20k experiment}
+
+\section{Dark Matter}
+
+\subsection{Particle physics}
+
+Particle physics is facing a phase transition. From the end of XIX$^{th}$ century, its motivation was to explain  behaviour at infinitesimal scale (nuclear scale).
+
+\
+
+We firstly discovered the $\beta^-$ particle (which is an electron or positron). When a nucleus has an excess of neutrons, these neutrons might decay into a proton, an electronic neutrino $\nu_e$ and an electron ($n \rightarrow p + \nu_e + e^-$).
+This led to the discovery of the neutrino, and then during the XX$^{th}$ century, lots of other elementary or composite particles.
+
+We now have a very strong Standard Model (SM) that is able to reproduce the result of collision between elementary particle from keV to TeV with great precision.
+
+\
+
+Unfortunately, it is becoming increasingly difficult to reach higher energies. The LHC seems to be almost on the edge of the constituent collision energy possible with a collider technology. There might be other particles more energetic that we can't see, even with our best technologies.
+
+\subsection{Existence of Dark Matter}
+
+% CMB
+
+The Cosmic Microwave Background (CMB) is a 3K (order of magnitude of 1mm wavelength) signal received everywhere in the universe. In the early universe, it was an opaque and dense fog of hot plasma. As it expended, those plasma particles started to cool down and proton and electron combined to form hydrogen atoms. At this time, the universe became transparent and the CMB is the signal we receive from this exact moment. Even if it's in average a constant signal in every direction of space (anisotropic signal), we measured in detail and saw tiny variations in the value of the CMB.
+
+% Photo du CMB
+
+These variations might come from the early universe, when nanometre quantum fluctuations took place, and expended to the size of the universe.
+
+In the late 90s, scientists used a frequency analysis of the CMB. From this, they discovered that this signal can help us adjust the parameters of the early universe.
+They found out that DM should be 26\% of all matter in the universe for that signal to be valid.
+
+Therefore, this signal is one of the best proof for the Big Bang Theory. Moreover, this was a strong support for the $\Lambda$CDM (Lambda Cold Dark Matter) model.
+
+\
+
+Moreover, in galaxies, star systems far from the galactic centre have a higher speed than theory gives. It seems like something is increasing their speed.
+
+% Graphe rotation curve difference entre théorie et mesures
+
+When we add the dark matter mass to the equation, we get a better theory fit on the measured rotation curve. We can conclude if our actual theory is valid, we need DM to explain this and we can even obtain the density of DM in the Milky Way, at our position from the center.
+From our perspective, the DM halo looks like a DM stream with an energy density of around 0.1 GeV/cm$^3$ moving at $v=250$ km/s toward earth.
+
+But have we any idea what might be this DM particle ?
+
+% Supersymetry
+
+\
+
+From the Standard Model, theorists found an issue with the mass of the Higgs boson. Indeed, there is a large error value to determine it, and this come from other particles pairing with anti-particles and “hiding” the real mass value of the Higgs boson.
+
+To avoid this, theorists created the MSSM (Minimal Supersymmetry Standard Model), that expect all SM particles to have a symmetry particle. In this idea, the mass of the Higgs boson become stable.
+
+As we know the proton (the lowest-mass particle from the SM) is supposed to have an infinite life-time, we can expect the lowest mass particle from the Supersymmetry to have the same property. Scientists called this supposed particle “neutralino”\footnote{Actually, there are four neutralinos, we're referring here to $\tilde{N}^0_1$ which is the lightest.}.
+
+As the proton (the lightest particle?? from the SM), the neutralino would have a large life-time and theory predict it would be a very weakly interactive particles, that led to the WIMP (Weakly Interactive Mass Particle) candidate for DM.
+
+\
+
+If indeed WIMPs particles exist, some collisions should appear between the LAr in the TPC and a WIMP particle orbiting the Milky Way.
+
+\
+
+A WIMP can be experimentally accessed in 3 ways (see Figure \ref{}) :
+\begin{itemize}
+    \item \textbf{Efficient annihilation : }When two WIMPs collide with enough energy, they will produce two SM particles. This is call an indirect detection.
+    \item \textbf{Efficient scattering : }When a WIMP collide with a SM particle, it produces a WIMP and a SM particle. This is call a direct detection.
+    \item \textbf{Efficient production : }When two SM particles collide into each other, they produce two WIMPs. This happens in particle colliders, but there is no detection then to get any signal if any WIMP is produce.
+\end{itemize}
+
+\subsection{Dark matter candidates and WIMPs}
+
+\begin{figure}[!h]      % Le !h entre crochet c'est pour forcer la position de la photo ici.
+    \centering
+    \includegraphics[width=1\textwidth]{img/darkside/docs/dark matter diagram.png}
+    \caption{Candidates for dark matter in the 2D plane SM-DM cross section and DM mass.}
+    \label{fig:crosssectionmassdiagram}
+\end{figure}
+
+The phase space for Dark Matter candidates covers almost 60 order of magnitudes for the mass and 108 for the cross-section. (see Figure \ref{fig:crosssectionmassdiagram}). Those various candidate masses could be from $10^{-15}$ GeV (Axions) to $10^{19}$ GeV (Black-Holes).
+
+\
+
+It is still possible that DM is a combination of different particles, but
+for the purpose of this experiment, we're only going to take interest in WIMPs, even if some other candidates are to follow (Axions, Black Holes ...).
+
+DarkSide-20K will be a direct detection (efficient scattering) of WIMPs.
+
+\
+
+But still, having 8 order of magnitude for the cross-section of the theoretical WIMPs and 4 for the mass is huge and need different experiment to explore the whole domain. For 20 years, scientists used several technologies to be able to detect a WIMP.
+
+We're here going to concentrate on the Liquid Argon TPC technology for the DarkSide-20k experiment.
+
+\section{DarkSide-20k experiment}
+
+DarkSide is an international experiment with the goal of detect dark matter rare events in a purified liquid argon tank.
+
+\begin{figure}[!h]      % Le !h entre crochet c'est pour forcer la position de la photo ici.
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/darkside/docs/phase graph darkside.png}
+    \caption{View on current research for WIMPs. Full line are experimental results and the dotted ones are ongoing projects.}
+    \label{fig:darksidephasestate}
+\end{figure}
+
+From the Figure \ref{fig:darksidephasestate}, we see that DarkSide-20k will be able to detect WIMP up to almost $10^{-48}$ $cm^2$ and from $10$ TeV, which is the phase space favoured by the MSSM theory.
+
+It's in this spot we have the highest chance to detect a WIMP, however neutrinos can interact with the nucleus and will create an irreducible background in our measurements.
+
+There are mainly two types of detectors : Liquid Argon like ours and Liquid Xenon\footnote{The most sensitive detectors have noble liquid as the target.}. Both are based on the Time Projection Chamber (TPC) technology.
+
+\
+
+Let's see the technology behind DarkSide-20k.
+
+\subsection{Liquid Argon Dual Phase TPC}
+
+DarkSide-20k rely on the Purified Liquid Argon Dual-Phase Time Projection Chamber technology (LAr-TPC).
+
+\begin{figure}[!h]      % Le !h entre crochet c'est pour forcer la position de la photo ici.
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/darkside/docs/tpc.png}
+    \caption{TPC}
+    \label{fig:tpc}
+\end{figure}
+% TODO : Mettre côte à côte
+\begin{figure}[!h]      % Le !h entre crochet c'est pour forcer la position de la photo ici.
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/darkside/docs/darkside20k.png}
+    \caption{DarkSide-20K}
+    \label{fig:darkside}
+\end{figure}
+
+A dual phase TPC is a tank of Purified Argon, a noble gas, existing mainly in liquid form (LAr) and with a small gas pocket at the top of the tank (dual phase). When a particle collide with an Ar atom, the atom is excited and emits a photon (128 nm) or a valence electron that is drifted to the gaz pocket.
+This photon will then be reflected and acquire a wavelength of 420 nm, and will be detected by SiMP modules (photon detectors placed at the base and the top of the TPC). There are actually two components to the light, the Nuclear Recoil (NR) and the Electronic Recoil (ER). The first one mainly produces a scintillation signal (S1) directly detected ($\sim$ ns), as the second one produces principally ionisation signal (S2) which will be detected after the first one ($\sim 100$ $\mu$s), following a chain of electron which will interact and form wider and bigger signals.
+
+Getting both signals let scientists know very precisely the energy left by the incoming particle and the coordinates of the collision.
+
+\subsection{Calibration of DarkSide-20k}
+
+To be able to detect and analyse a signal given by the TPC, we firstly need to calibrate our project.
+
+Indeed, a TPC is able to detect any particle within the cross-section range allowed. That means other particles (as neutron, photon for instance) can react in the TPC and appear as a signal. In this case, we need a way to differentiate WIMPs signals from neutron or photon signals.
+
+\
+
+To do so, we're going to use a calibration of the TPC.
+
+The calibration process is done by letting some radioactive sources go through a tube surrounding the TPC. When the source emits a radiation (photons, neutron ...), this may appear in the TPC and be detected by the Silicon PhotoMultipliers (SiPM) modules placed on the top and bottom of the TPC. Then, the signal will be analysed.
+
+Because we know the mass (= energy) of the radiation particle, we can calibrate.
+
+The calibration process can take some time, because firstly, if the detectors are way too sensitive, there might be noise, or even detect a photon already detected by a neighbour module (which will create a cascade of detection).
+However, if the detectors are too opaque to any given signal, they might not even detect the dark matter signal.
+
+My predecessor worked on the calibration process and succeed to find the correct parameters, preventing too many noises, but allowing the detection in most of the cases.
+
+\
+
+As said before, another problem is that the TPC will not only detect Dark Matter, it can detect other radiation, that might come from any material surrounding the TPC. Moreover, inside the TPC the argon is not perfectly purified. Indeed, $^{39}Ar$ is an instable and radioactive isotope that is naturally found in $^{40}Ar$. Even tho the Argon is purified, it's send from the USA and during the trip, cosmic rays can capture a neutron from a $^{40}Ar$ to transform it into a $^{39}Ar$. The disintegration of a $^{39}Ar$ produce an electron that might interact with the TPC.
+
+In the models we have for our detector, we take care to include all those possibilities. Then, we add what should a WIMP add to these detections.
+If what we get at the final experiment looks similar than those models, we might have just detected a dark matter particle.
+
+% Graphe de Marie
+
+In that way, we're sure that a WIMP detection have been done.
+
+\subsection{Different Mock-ups}
+
+The goal of our lab here in CERN is to be sure it's possible to calibrate the TPC by moving a radioactive source inside the tubes. Indeed, at liquid Argon temperatures, water ice can form inside the tube if the humidity is not 0. Moreover, we want to see how are behaving the motors and the rope at different temperatures and with differences in shapes of tubes.
+
+% Graphique tube final dans darkside20k et tube de notre expérience
+
+We can see that in the final experiment, all elbows will have 40 cm radius, letting us test this configuration on our Mock-ups.
+
+\
+
+The first Mock-up called MU\_CS was to test motors in a cold environment. The tank was cooled until Liquid Nitrogen (LN2) at $-196$ °$C$. This only took data during 8 hours and was successful.
+
+Then, there was a second Mock-up, MU\_W who was happening in ambient temperature, but with the right proportions of the final tube at scale 1:1. This was supposed to test the bends of the tube and the tension resulting by them.
+
+Now, we will have a Mock-up based on the robustness in cold environment. This will take place in a LN2 tank during 4 weeks. This long time might enable ice formation inside the tube, or this could have an effect on the speed of the source or the tension of motors.
+
+
+\subsection{Parameters to supervise}
+
+The mock-up system is composed of a LN2 tank, 2 motors and a tube going into the tank. A rope is putting through the tubes and allow us to control a source's position from a Linux terminal.
+
+From this terminal, we have access to the source position (DS2 rope length and DS3 rope length), the tension from the motors, and errors coming from the theoretical rope length and the actual measure. Moreover, from the total rope length, we can check if there is any elongation or contraction.
+
+\
+
+In addition to this Linux terminal, we have a Windows computer getting all kinds of information from different captors around the tank. For example : temperature, humidity or current inside motors.
+One of these data is the temperature inside the tank at different spots, called PT100. There are 4 of them, placed from the top to the bottom and following the tube shape. These places are related to the places where the source stop during our tests.
+
+% Schéma du mock-up actuel, avec les PT100
+
+\section{journal}
+
+\begin{itemize}
+    \item \textbf{Plot solving for monitoring : }J'ai travaillé sur un petit programme rapide pour plot les différentes données selon l'heure etc...
+
+
+    \item \textbf{Motor problem : }demander à peter/pascal de m'expliquer le soucis.
+
+
+    \item \textbf{Monitoring issues with the software : }le programme qui récupère les données en python ouvre un fichier texte et écrit dessus. En même temps, celui-ci affiche ne temps réel des graphiques de toutes les données et nous donne les logs. Lorsque un des capteur n'est plus disponible (si manip un peu rapide car cables sensibles), il arrête de prendre de nouvelles valeurs et se stoppe.
+
+    De plus, lorsque on copie le fichier de donnée actuellement en cours vers une clé USB, l'écriture du fichier ne vérifie pas si il est lock, ce qui empêche l'écriture du fichier pendant une copie un peu longue (sur une clé usb donc hors du DD par exemple). Le programme s'arrête donc et crash. Résolu en faisant un programme python qui copie le fichier localement pour l'envoyer vers la clé usb (lecture uniquement ne lock pas un fichier en python).
+
+    \item \textbf{Coefficients de corrélation et début d'analyse des paramètres :}
+
+
+    \item \textbf{Fill in cryostat : }Nous n'avons pas pu remplir le cryostat en temps voulu à cause des problèmes de moteurs. Le cryostat a été rempli vendredi 09 juin matin en ?? heures. Quelques soucis sur l'affichage du niveau de remplissage de la cuve.
+
+    \item \textbf{Monitoring routine : }
+
+    \item \textbf{Afternoon program : }
+
+
+    \item
+\end{itemize}
+
+\newpage
+
+\part{Proto-DUNE}
+\section{}
+\subsection{}
+%%% A RETIRER AVANT DE RENDRE, OU DEPLACER A LA FIN %%%
+\newpage
+\part{Catalogue}
+\notebox{Cette partie ne doit pas rester ici, elle doit être retirée}
+
+\section{Maths}
+
+\subsection{Matrices}
+$$
+\begin{matrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{matrix}
+$$
+$$
+\begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{bmatrix}
+$$
+$$
+\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{pmatrix}
+$$
+
+\subsection{Représentations}
+
+$$\vec{v} = \langle v_{1}, v_{2}, v_{3} \rangle$$
+$$\left\{ \frac{1}{2} \right\}$$
+$$\left[ \frac{1}{2} \right]$$
+$$\left( \frac{1}{2} \right)$$
+$$\left| \frac{1}{2} \right|$$
+$$\bra{\Psi}\ket{\Psi} = |\Psi|^2$$
+
+\subsection{Analyse}
+
+$$\lim_{x\to\infty} f(x)$$
+$$\sum_{i=1}^{n} a_{i}$$
+$$\int_{a}^{b} f(x) dx$$
+$$\frac{d}{dx} f(x)$$
+$$\frac{\partial}{\partial x} f(x,y)$$
+
+\subsection{Symboles courants}
+$$A \cup B, A \cap B, A \subseteq B, A \in B, A^c$$
+$$\infty, \forall, \exists, \emptyset$$
+$$\mathbb{N}, \mathbb{Z}, \mathbb{Q}, \mathbb{R}, \mathbb{C}$$
+$$=, \neq, <, >, \leq, \geq, \approx$$
+$$\land, \lor, \lnot, \implies, \iff$$
+$$\Gamma(x), \zeta(x), \mathrm{erf}(x)$$
+
+$$
+\begin{cases}
+x + y = 2 \\
+2x - y = 1
+\end{cases}
+$$
+
+\section{Ajouts visuels}
+
+\subsection{Boite}
+\notebox{coucou}
+\importantbox{coucou}
+\tipbox{coucou}
+\warningbox{coucou}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%  A RETIRER AVANT DE RENDRE, OU DEPLACER A LA FIN  %%%%%%%%%%%
+\newpage
+\part{Annexe}
+\notebox{Cette partie ne doit pas rester ici, elle doit être retirée ou mise à la fin pour servir d'annexe}
+\section{}
+\subsection{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\thispagestyle{empty}
+
+\LaTeX{} \citep{articleexemple} is a set of macros built atop \TeX{} \citep{bookexemple}. \citep{miscexemple}
+\bibliographystyle{unsrt} % We choose the "plain" reference style
+\bibliography{biblio} % Entries are in the refs.bib file
+\end{document}

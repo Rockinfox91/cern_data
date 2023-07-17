@@ -14,7 +14,8 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
                         ax_y_name: [str] = "Values", is_saving: bool = False, timing: str = "min",
                         put_y_line: int = None, y_line_name=None,
                         start_date: str = None, end_date: str = None,
-                        other_coly: str = None, other_coly_name: str = "Values", df_given: bool=False):
+                        other_coly: str = None, other_coly_name: str = "Values",
+                        put_x_line: ([str],[str]) = None):
     """
     Generate a graph from data in a file.
 
@@ -43,6 +44,16 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
         df = lire_data(file)
     else:
         df = file
+
+    # Verify time column is unixtime, transform it otherwise
+    if df[colx].dtype == 'object':
+        # Convertir la colonne 'colx' en datetime
+        df[colx] = pd.to_datetime(df[colx], format='%d/%m/%Y_%H:%M:%S')
+
+        # Convertir la colonne 'colx' en unixtimestamp
+        df['unixtimestamp'] = df[colx].apply(lambda x: int(datetime.timestamp(x)))
+        print(df)
+        colx = "unixtimestamp"
 
     x_limit_date = [start_date, end_date]
 
@@ -100,19 +111,6 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
     ax.text(0.99, 1.01, f"CERN Run\n{day}-{month}-{year}",
             transform=ax.transAxes, ha='right', fontweight='bold')
 
-    if not isinstance(file, pd.DataFrame):
-        # Get the metadata of the file
-        file_first_data_date = get_date_first_data(file)
-        file_first_data_datetime = file_first_data_date.strftime("%Y-%m-%d %H:%M:%S")
-        file_last_data_date = get_date_last_data(file)
-        file_last_data_datetime = file_last_data_date.strftime("%Y-%m-%d %H:%M:%S")
-
-        # Display the file's creation date and time on the graph
-        ax.text(-0.1, 1.13, f"Data file begins at: {file_first_data_datetime}",
-                transform=ax.transAxes, ha='left', va='top')
-        ax.text(-0.1, 1.1, f"Data file finishes at: {file_last_data_datetime}",
-                transform=ax.transAxes, ha='left', va='top')
-
     # TODO: ajouter Graph begins at ... end at ...
 
     # Plot each column from coly on the first y-axis
@@ -135,7 +133,7 @@ def get_graph_from_file(file: str, coly: [str], colx: str = "Time", name: str = 
                 transform=ax.transAxes, ha='right', fontweight='bold')
 
     # Set axis labels and title
-    if colx == "Time" or colx == "LinuxTime":
+    if colx == "Time" or colx == "LinuxTime" or colx == "unixtimestamp":
         ax.set_xlabel(f"Time since beginning ({timing})")
     else:
         ax.set_xlabel(colx)
@@ -235,6 +233,18 @@ def plot_correlation_matrix(df: pd.DataFrame, exclude_columns: [str] = None,
     # Show the plot
     plt.show()
 
+def tension_graph(df):
+    fig, ax = plt.subplots(figsize=(2, 6))
+
+    sns.kdeplot(data=df,y="I1",fill=True, color="C0", label="I1")
+    sns.kdeplot(data=df, y="I3",fill=True, color="C1", label="I3")
+
+    ax.set_ylim(0,2.5)
+    plt.xlabel("Density")
+    plt.ylabel("Current (A)")
+    plt.legend(title="Distributions")
+
+    plt.show()
 
 def scatter_hist(df):
     """
@@ -281,7 +291,8 @@ def scatter_hist(df):
 
     # Créer le histogramme joint avec les couleurs définies par "Category" et la palette personnalisée
     jointplot = sns.jointplot(data=df_sorted, x="time", y="TensionMax", hue="Puller", markers=["o", "s", "^", '*'],
-                              palette=custom_palette, style=df_sorted["Position"], ylim=(7, 32))
+                              palette=custom_palette, style=df_sorted["Position"],
+                              ylim=(13, 35))
     # TODO Symbole à la place de la palette de couleur
 
     # Obtenir valeur moyenne et répartition de distribution
@@ -314,26 +325,34 @@ def scatter_hist(df):
 
     plt.axhline(y=mean["DS2"], linestyle="--", color="blue", linewidth=0.2)
     # Ajout du texte aux coordonnées spécifiées
-    ax_joint.annotate(r"$\mu_{DS2}$ = "+f"{round(mean['DS2'],2)}N", xy=(250, mean["DS2"]+0.2), xycoords='data', ha='left',
+    ax_joint.annotate(r"$\mu_{DS2}$ = "+f"{round(mean['DS2'],2)}N", xy=(1000, mean["DS2"]+1), xycoords='data', ha='left',
                       va='bottom', fontsize=10, color="blue")
-    ax_joint.annotate(r"$\sigma_{DS2}$ = " + f"{round(std['DS2'], 2)}N", xy=(250, mean["DS2"]-0.3), xycoords='data', ha='left',
-                      va='top', fontsize=10, color="blue")
+    ax_joint.annotate(r"$\sigma_{DS2}$ = " + f"{round(std['DS2'], 2)}N", xy=(1000, mean["DS2"]+0.2), xycoords='data', ha='left',
+                      va='bottom', fontsize=10, color="blue")
+    ax_joint.annotate(r"$N_{DS2}$ = " + f"{df[df['Puller'] == 'DS2'].shape[0]}", xy=(1000, mean["DS2"] + 1.8), xycoords='data',
+                      ha='left',
+                      va='bottom', fontsize=10, color="blue")
+
     plt.axhline(y=mean["DS4"], linestyle="--", color="red", linewidth=0.2)
     # Ajout du texte aux coordonnées spécifiées
-    ax_joint.annotate(r"$\mu_{DS4}$ = "+f"{round(mean['DS4'],2)}N", xy=(250, mean["DS4"]+0.2), xycoords='data', ha='left',
+    ax_joint.annotate(r"$\mu_{DS4}$ = "+f"{round(mean['DS4'],2)}N", xy=(1000, mean["DS4"]+1), xycoords='data', ha='left',
                       va='bottom', fontsize=10, color="red")
-    ax_joint.annotate(r"$\sigma_{DS4}$ = " + f"{round(std['DS4'], 2)}N", xy=(250, mean["DS4"]-0.3), xycoords='data',
-                      ha='left', va='top', fontsize=10, color="red")
+    ax_joint.annotate(r"$\sigma_{DS4}$ = " + f"{round(std['DS4'], 2)}N", xy=(1000, mean["DS4"]+0.2), xycoords='data',
+                      ha='left', va='bottom', fontsize=10, color="red")
+    ax_joint.annotate(r"$N_{DS4}$ = " + f"{df[df['Puller'] == 'DS4'].shape[0]}", xy=(1000, mean["DS4"] + 1.8),
+                      xycoords='data',
+                      ha='left',
+                      va='bottom', fontsize=10, color="red")
 
     for i in range(len(time_constants)):
         # Ajouter une ligne en pointillés
         plt.axvline(x=time_constants[i], linestyle="--", color="gray", linewidth=0.2)
         # Ajout du texte aux coordonnées spécifiées
-        ax_joint.annotate(time_constants_name[i], xy=(time_constants[i], 30), xycoords='data', ha='left',
+        ax_joint.annotate(time_constants_name[i], xy=(time_constants[i], 33), xycoords='data', ha='left',
                           va='center', fontsize=10, color="gray")
 
     # Customize the legend
-    legend = ax_joint.legend(title='Type of points')
+    legend = ax_joint.legend()
     # Position the legend outside the plot
     legend.set_bbox_to_anchor((-0.2, 1))  # Adjust the values as needed
     # Set the properties of the legend box
@@ -395,6 +414,7 @@ def get_afternoon_tension_data(file: str, time: [[str]]):
         i = 0
         unixtime_from_start_move = 0
         unixtime_from_end_move = 0
+        puller = None
         # Créer un DataFrame vide
         df = pd.DataFrame(columns=['TensionMax', 'time', 'Puller', 'Position'])
         for index, row in boundary_data.iterrows():
@@ -437,19 +457,22 @@ def get_afternoon_tension_data(file: str, time: [[str]]):
                 unixtime_from_end_move = unixtime
 
             # Récupérer tension max dans les 10 secondes après mouvement
-            if (unixtime <= unixtime_from_start_move + 10):
+            if (unixtime <= unixtime_from_start_move + 45):
                 tension2_value = row["Tension2"]
                 tension4_value = row["Tension4"]
                 if puller == "DS2" and tension2_value > df["TensionMax"].iloc[-1]:
                     df.loc[df.index[-1], 'TensionMax'] = tension2_value
+                    df["time_max_tension"] = int(unixtime)
                 if puller == "DS4" and tension4_value > df["TensionMax"].iloc[-1]:
+
                     df.loc[df.index[-1], 'TensionMax'] = tension4_value
+                    df["time_max_tension"] = int(unixtime)
 
         print(f"{i} data found.")
         total_i += i
         # Utilisez la fonction concat pour les concaténer
         final_df = pd.concat([final_df, df])
-    print(df)
+    print(final_df)
     print(f"Total data found : {total_i}")
     return final_df
 
