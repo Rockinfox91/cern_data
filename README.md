@@ -10,7 +10,14 @@ pandoc README.md | lynx -stdin
 # Installation
 (only if you want to copy this on another computer, pass this if you're on lxplus.)
 
-will do later
+## Clone the repository
+````shell
+git clone https://github.com/Rockinfox91/cern_data.git
+cd cern_data
+python3 -m venv .venv
+. ./.venv/bin/activate
+pip install -r requirements.txt
+````
 
 # General information :
 
