@@ -63,6 +63,10 @@ To get all windows files appended:
 ````shell
 python3 -m src.append_data "copy_cern" "Time" "windows_final_data" -a
 ````
+To get all windows files for humidity appended:
+````shell
+python3 -m src.append_data "humidity" "Time" "humidity_final_data" -a
+````
 
 ## get_graph
 Generate a graph from data in a file.
@@ -81,6 +85,10 @@ python3 -m src.get_graph "windows_final_data" "Ta" "Tb" "Tc" "Td" --y-axis-label
 To get the graph of current from all data
 ````shell
 python3 -m src.get_graph "windows_final_data" "I1" "I3" --y-axis-label "Current (A)" --colx "Time" -t "day" --name "current_since_begining" --start-date "2023.06.09_18:00:00" 
+````
+To get the graph of all humidity from one test
+````shell
+python -m src.get_graph "copy_humidity_data1" "FlowOut" "Hout" --y-axis-label "Humidity (%)" -n "Humidity-2-4" --colx "Time" --timing "min" --y-limit -3 100 --start-date "2023.07.06_14:40:00" --end-date "2023.07.06_17:04:30"
 ````
 
 ## calib_graph
